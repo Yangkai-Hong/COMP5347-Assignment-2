@@ -1,0 +1,11 @@
+h1{text-align:center}
+#overview_area,#individual_area{text-align:center}
+body{margin:0px auto;}
+table{margin:0px auto;}
+td{text-align:left}
+li{text-align:left}
+a{text-align:left}
+.affix {
+      top: 20px;
+  }
+
