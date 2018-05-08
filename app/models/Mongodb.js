@@ -3,30 +3,30 @@ var mongoose = require('mongoose')
 var request = require('request')
 
 var revSchema = new mongoose.Schema(
-		{	
+		{
+            revid:Number,
+            parentid:Number,
+            user:String,
+            timestamp:String,
+            size:Number,
 			sha1: String,
-			title: String, 
-			timestamp:String,
 			parsedcomment:String,
-			revid:Number,
-			user:String,
-			parentid:Number,
+            title: String,
 			anon:String,
-			size:Number,
 			usertype:String
-			},
+		},
 		{
 		    versionKey: false 
 		});
-var Article = mongoose.model('Article', revSchema, 'articles')
+var Revision = mongoose.model('Revision', revSchema, 'revisions')
 
-mongoose.connect('mongodb+srv://hyk:Hyk221522@yangkai-hong-mdsnm.mongodb.net/WAD',function () {
+mongoose.connect('mongodb://localhost/wikipedia',function () {
 	  console.log('mongodb connected')
 });
 
-//update bot_admin
+//update bot & admin
 module.exports.add_data = function (array,usertype, next){
-	Article.update({user:{"$in":array}},{$set:{"usertype":usertype}},{'multi':true},function(err){
+	Revision.update({user:{"$in":array}},{$set:{"usertype":usertype}},{'multi':true},function(err){
 		if(err){console.log('add_error')}
 		else{
 			next()
@@ -59,7 +59,7 @@ module.exports.update_data = function (title,callback){
 //		console.log(revisions[0])
 			
 		var selected_timestamp;
-		Article.find({title:title})
+		Revision.find({title:title})
 		.sort({'timestamp':-1})
 		.limit(1)
 		.exec(function(err,result){
@@ -75,7 +75,7 @@ module.exports.update_data = function (title,callback){
 //					insert the data here
 					var insert = (revisions[item])
 					
-					Article.create(insert,function(err,docs){
+					Revision.create(insert,function(err,docs){
 						if(err) console.log(err);
 						console.log("success");
 					});
@@ -90,7 +90,7 @@ module.exports.update_data = function (title,callback){
 
 //Get Distinct Name
 module.exports.getName = function (callback){	
-	Article.distinct('title')
+	Revision.distinct('title')
 	.exec(function(err,result){
 		if(err){
 			console.log("Query error!");
@@ -109,7 +109,7 @@ module.exports.MostRevisions = function (callback){
 		{'$sort':{numOfEdits:-1}},
 		{'$limit':1}	
 	]
-	Article.aggregate(MostNumberRevisions, function(err, results){
+	Revision.aggregate(MostNumberRevisions, function(err, results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
@@ -125,7 +125,7 @@ module.exports.LeastRevisions = function(callback){
 		{'$sort':{numOfEdits:1}},
 		{'$limit':1}	
 	]	
-	Article.aggregate(LeastNumberRevisions, function(err, results){
+	Revision.aggregate(LeastNumberRevisions, function(err, results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
@@ -144,7 +144,7 @@ module.exports.LargestGroup = function(callback){
         {'$sort':{count:-1}},
         {'$limit':1}
 	]	
-	Article.aggregate(LargestGroup,function(err,results){
+	Revision.aggregate(LargestGroup,function(err,results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
@@ -164,7 +164,7 @@ module.exports.SmallestGroup = function (callback){
         {'$limit':1}		
 	]	
 		
-	Article.aggregate(SmallestGroup,function(err,results){
+	Revision.aggregate(SmallestGroup,function(err,results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
@@ -181,7 +181,7 @@ module.exports.LongestHistory = function(callback){
 		{'$sort':{timestamp:1}},
 		{'$limit':1}
 	]
-	Article.aggregate(LongestHistory,function(err,results){
+	Revision.aggregate(LongestHistory,function(err,results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
@@ -197,7 +197,7 @@ module.exports.ShortestHistory = function(callback){
 		{'$sort':{timestamp:-1}},
 		{'$limit':1}
 	]
-	Article.aggregate(ShortestHistory,function(err,results){
+	Revision.aggregate(ShortestHistory,function(err,results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
@@ -214,7 +214,7 @@ module.exports.getAnonNumber = function(callback){
 		{'$group':{'_id':{"$substr":["$timestamp",0,4]},'numOfEdits':{$sum:1}}},
 		{'$sort':{_id:1}}
 	]
-	Article.aggregate(AnonNumber,function(err,results){
+	Revision.aggregate(AnonNumber,function(err,results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
@@ -230,7 +230,7 @@ module.exports.getBotNumber = function(callback){
 		{'$group':{'_id':{"$substr":["$timestamp",0,4]},'numOfEdits':{$sum:1}}},
 		{'$sort':{_id:1}}			
 	]
-	Article.aggregate(BotNumber,function(err,results){
+	Revision.aggregate(BotNumber,function(err,results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
@@ -246,7 +246,7 @@ module.exports.getAdminNumber = function(callback){
 		{'$group':{'_id':{"$substr":["$timestamp",0,4]},'numOfEdits':{$sum:1}}},
 		{'$sort':{_id:1}}			
 	]
-	Article.aggregate(AdminNumber,function(err,results){
+	Revision.aggregate(AdminNumber,function(err,results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
@@ -262,7 +262,7 @@ module.exports.getUserNumber = function(callback){
 		{'$group':{'_id':{"$substr":["$timestamp",0,4]},'numOfEdits':{$sum:1}}},
 		{'$sort':{_id:1}}			
 	]
-	Article.aggregate(UserNumber,function(err,results){
+	Revision.aggregate(UserNumber,function(err,results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
@@ -274,7 +274,7 @@ module.exports.getUserNumber = function(callback){
 
 //Get number of revisions for an article
 module.exports.getTotalNumber = function(title,callback){
-	Article.find({'title':title})
+	Revision.find({'title':title})
 	.count()
 	.exec(function(err,result){
 		if (err){
@@ -294,7 +294,7 @@ module.exports.getArticleAnonNumber = function(title,callback){
 		{'$group':{'_id':{"$substr":["$timestamp",0,4]},'numOfEdits':{$sum:1}}},
 		{'$sort':{_id:1}}
 	]
-	Article.aggregate(AnonNumber,function(err,results){
+	Revision.aggregate(AnonNumber,function(err,results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
@@ -310,7 +310,7 @@ module.exports.getArticleBotNumber = function(title,callback){
 		{'$group':{'_id':{"$substr":["$timestamp",0,4]},'numOfEdits':{$sum:1}}},
 		{'$sort':{_id:1}}			
 	]
-	Article.aggregate(BotNumber,function(err,results){
+	Revision.aggregate(BotNumber,function(err,results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
@@ -326,7 +326,7 @@ module.exports.getArticleAdminNumber = function(title,callback){
 		{'$group':{'_id':{"$substr":["$timestamp",0,4]},'numOfEdits':{$sum:1}}},
 		{'$sort':{_id:1}}			
 	]
-	Article.aggregate(AdminNumber,function(err,results){
+	Revision.aggregate(AdminNumber,function(err,results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
@@ -342,7 +342,7 @@ module.exports.getArticleUserNumber = function(title,callback){
 		{'$group':{'_id':{"$substr":["$timestamp",0,4]},'numOfEdits':{$sum:1}}},
 		{'$sort':{_id:1}}			
 	]
-	Article.aggregate(UserNumber,function(err,results){
+	Revision.aggregate(UserNumber,function(err,results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
@@ -361,7 +361,7 @@ module.exports.getArticleUserNumber = function(title,callback){
 //		{'$match':{anon:{$ne:""},title:title}},
 //		{$group:{'_id':{year:{"$substr":["$timestamp",0,4]},user:"$user"},'numOfEdits':{$sum:1}}}	
 //	]
-//	Article.aggregate(RegisteredNumber,function(err,results){
+//	Revision.aggregate(RegisteredNumber,function(err,results){
 //		if (err){
 //			console.log("Aggregation Error")
 //			callback(1)
@@ -380,7 +380,7 @@ module.exports.getTop5 = function(title,callback){
 		{$sort:{numOfEdits:-1}},
 		{$limit:5}
 	]
-	Article.aggregate(top5,function(err,results){
+	Revision.aggregate(top5,function(err,results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
@@ -397,7 +397,7 @@ module.exports.getYearlyTop5 = function(title,users,callback){
 		{'$group':{_id:{year:{"$substr":["$timestamp",0,4]},user:'$user'},'numOfEdits':{$sum:1} }},
 		{'$sort':{_id:1}}
 		]
-	Article.aggregate(Yearlytop5,function(err,results){
+	Revision.aggregate(Yearlytop5,function(err,results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)

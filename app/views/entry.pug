@@ -1,0 +1,111 @@
+doctype html
+
+html(lang="en")
+head
+    title Data Analysis for WIKI articles
+    script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js") //CDN for Jquery
+    script(src="https://www.gstatic.com/charts/loader.js") //CDN for Google Chart
+    script(src="main.js")
+    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js")
+    link(rel='stylesheet'
+         type='text/css'
+         href='css/style.css'
+         media='screen')
+    link(rel='stylesheet'
+         type='text/css'
+         href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
+         media='screen')    
+
+
+body(data-spy='scroll', data-target='#myScrollspy', data-offset='15')
+     
+     
+      h1#top_area  Data Analysis Web Application
+      br
+      br
+      br
+      br
+      br
+      div.container
+        div.row
+            nav#myScrollspy.col-sm-3
+                ul#navlist.nav.nav-pills.nav-stacked(data-spy='affix', data-offset-top='205')
+                    li.active
+                        a(href='#top_area') TOP
+                    li
+                        a(href='#section1') OverView
+                    li
+                        a(href='#section2') Individual
+	        
+            div.col-sm-9
+		    
+              table
+                tr
+                    td
+                        div#section1
+		      
+                            h3  Overview
+                            div.list-group
+                                a.list-group-item.active The article with the most number of revisions: #{M_R}
+		
+                                a.list-group-item The article with the least number of revisions: #{S_R}
+		
+                                a.list-group-item.active The article with the largest groups of registered users: #{L_G}
+		
+                                a.list-group-item The article with the smallest groups of registered users: #{S_G}
+		
+                                a.list-group-item.active The article with the longest history: #{L_H}
+		
+                                a.list-group-item The article with the shortest history: #{S_H}
+		            
+                            hr
+		            
+                            select#chartList
+                                option(value=-1) Select The Chart Type
+                                option(value=0) Barchart
+                                option(value=1) Piechart
+		
+                        div#OverallChart
+		            
+                        hr
+                tr
+                    td   
+                        div#section2
+                            h3 Individual    
+		            
+                            select#articleList
+                                option(value=-1) Select Article
+                                each title, i  in names
+                                    option(value=i) #{title}
+                            br
+                            br
+		            
+                            ul.list-group
+                                li.list-group-item
+                                    p#SelectedTitle Title:
+                                li.list-group-item  
+                                    p#SelectedRevisions Total number of revisions:
+                                li.list-group-item
+                                    p#SelectedTop5 Top 5 users:
+		            
+                            hr
+		          
+                            select#chartType
+                                option(value=-1) Select Chart Type
+                                option(value=0) Bar Chart1
+                                option(value=1) Pie Chart1
+                                option(value=3) Bar Chart2
+                            div#checkboxArea
+                            br
+                            input(type='button' value='Get the chart')#submit
+		                   
+                            div#IndividualChart
+			               
+		
+	
+	
+	
+	
+	
+	
+	
