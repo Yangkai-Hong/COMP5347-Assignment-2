@@ -1,0 +1,30 @@
+doctype html
+html(lang='en')
+    head
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
+        meta(name='description', content='')
+        meta(name='author', content='')
+        script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js") //CDN for Jquery
+        script(src="https://www.gstatic.com/charts/loader.js") //CDN for Google Chart
+        script(src="main.js")
+        script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js")
+        script.
+
+        link(rel='icon', href='../../../../favicon.ico')
+        title Sign up
+        // Bootstrap core CSS
+        link(href='https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css', rel='stylesheet')
+        // Custom styles for this template
+        link(href='css/landing.css', rel='stylesheet')
+    body.text-center
+        form.form-signin(action='/addUser' method='GET')
+            img.mb-4(src='https://getbootstrap.com/assets/brand/bootstrap-solid.svg', alt='', width='72', height='72')
+            h1.h3.mb-3.font-weight-normal Sign up
+            input#inputFirstname.form-control(type='text',name='firstname', placeholder='First name', required='',autofocus='')
+            input#inputLastname.form-control(type='text',name='lastname', placeholder='Last name', required='')
+            input#inputUsername.form-control(type='text',name='username', placeholder='User name', required='')
+            input#inputEmail.form-control(type='email',name='email', placeholder='Email address', required='')
+            input#inputPassword.form-control(type='password',name='password', placeholder='Password', required='')
+            //input#confirmPassword.form-control(type='password',placeholder='Confirm password',required='')
+            button#buttonSignup.btn.btn-lg.btn-primary.btn-block(type='submit') Sign up
