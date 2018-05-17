@@ -5,15 +5,13 @@ html(lang='en')
         meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
         meta(name='description', content='')
         meta(name='author', content='')
-        link(rel='icon', href='../../../../favicon.ico')
-        title Signin
+        title WikiLatic: Sign in
         // Bootstrap core CSS
         link(href='https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css', rel='stylesheet')
         // Custom styles for this template
         link(href='css/landing.css', rel='stylesheet')
     body.text-center
-        form.form-signin(action='/checkUser' method='GET')
-            img.mb-4(src='https://getbootstrap.com/assets/brand/bootstrap-solid.svg', alt='', width='72', height='72')
+        form.form-signin(action='/user' method='GET')
             h1.h3.mb-3.font-weight-normal Please sign in
             label.sr-only(for='inputEmail') Email address
             input#inputEmail.form-control(type='email', name='email',placeholder='Email address', required='', autofocus='')

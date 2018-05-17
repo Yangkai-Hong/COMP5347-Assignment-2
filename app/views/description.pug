@@ -1,0 +1,54 @@
+doctype html
+html(lang='en')
+    head
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
+        meta(name='description', content='')
+        meta(name='author', content='')
+        title WikiLatic: Description
+        // Bootstrap core CSS
+        link(href='https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css', rel='stylesheet')
+        // Custom styles for this template
+        style.
+            body {padding-top: 3.5rem;}
+            form {margin-right: 1rem;}
+            img {width: 100%;height:80%;objec-fit: cover;}
+    body
+        nav.navbar.navbar-expand-md.navbar-dark.fixed-top.bg-dark
+            button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarsExampleDefault', aria-controls='navbarsExampleDefault', aria-expanded='false', aria-label='Toggle navigation')
+                span.navbar-toggler-icon
+            #navbarsExampleDefault.collapse.navbar-collapse
+                ul.navbar-nav.mr-auto
+                    li.nav-item.active
+                        a.nav-link(href='#')
+                            | Data Analytic Web Application (WikiLatic)
+                            span.sr-only (current)
+                form(action='/signin')
+                    button.btn.btn-outline-success.my-2.my-sm-0(type='submit') Signin
+                form(action='/signup')
+                    button.btn.btn-outline-success.my-2.my-sm-0(type='submit') Signup
+        main(role='main')
+            // Main jumbotron for a primary marketing message or call to action
+            .jumbotron
+                .container
+                    h1.display-3 WikiLatic
+                    p
+                        | This is a small data analytic web application. The main dataset contains a number of files in JSON formats storing revision histories of Wikipedia articles. The dataset was created by querying wikipediaAPI1. The articles are selected from Featured Articles.
+                    p
+                        a.btn.btn-primary.btn-lg(href='#', role='button') Learn more »
+            .container
+                // Example row of columns
+                .row
+                    .col-md-4
+                        p Example bar chart showing overall yearly revision number distribution
+                        img(src='img/fig1.png')
+                    .col-md-4
+                        p Example Pie chart showing user type distribution
+                        img(src='img/fig4.png')
+                    .col-md-4
+                        p Example Pie chart showing user type distribution
+                        img(src='img/fig5.png')
+                hr
+            // /container
+        footer.container
+            p © COMP5347 G23 2018

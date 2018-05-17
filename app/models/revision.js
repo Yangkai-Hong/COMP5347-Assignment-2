@@ -24,20 +24,26 @@ mongoose.connect('mongodb://localhost/wikipedia',function () {
 	  console.log('mongodb connected')
 });
 
-//update bot & admin
-module.exports.add_data = function (array,usertype, next){
-	Revision.update({user:{"$in":array}},{$set:{"usertype":usertype}},{'multi':true},function(err){
-		if(err){console.log('add_error')}
-		else{
-			next()
-		}
-	});
+// add usertype attribute to revision
+module.exports.addUsertype = function (array, usertype, next){
+	Revision.update(
+		{user:{"$in":array}},
+		{$set:{"usertype":usertype}},
+		{'multi':true},
+		function(err){
+			if(err){
+				console.log('add_error')
+			}
+			else{
+				next()
+			}
+		});
 }
 
-//update database
-module.exports.update_data = function (title,callback){
-	console.log(title);
-	var update_array = new Array();
+//updateRevs new revisions
+module.exports.updateRevisions = function (title, callback){
+	//console.log(title);
+	var updateArray = new Array();
 	url = 'https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=sha1%7Ctimestamp%7Cparsedcomment%7Cids%7Cuser%7Cflags%7Csize&format=json&rvlimit=max&titles=';
 	url += title;
 	request({
@@ -46,91 +52,75 @@ module.exports.update_data = function (title,callback){
 		json:true,
 		headers: { 'Api-User-Agent': 'Example/1.0' },	
 	},function(error,response,body){
-		if (error){callback(1)}
+		if (error){
+			callback(1)
+		}
 		var info = body['query']['pages']
-		 for (var key in info){
-			 R_info = info[key]
+		 for (var index in info){
+			 revisionInfo = info[index]
 		 }
-		title = R_info['title']
-		revisions = R_info['revisions']
+		title = revisionInfo['title']
+		revisions = revisionInfo['revisions']
 		for (var item in revisions)
 			revisions[item]['title'] = title
-		
-//		console.log(revisions[0])
-			
-		var selected_timestamp;
+		//console.log(revisions[0])
+		var selectedTimestamp;
 		Revision.find({title:title})
 		.sort({'timestamp':-1})
 		.limit(1)
 		.exec(function(err,result){
 			if (err){
 				console.log("Query error!")
-			}else{
-			selected_timestamp = result[0]['timestamp']
 			}
-			console.log(selected_timestamp)
+			else{
+				selectedTimestamp = result[0]['timestamp']
+			}
+			//console.log(selectedTimestamp)
 			for (var item in revisions){
-				if (revisions[item]['timestamp'] > selected_timestamp){
+				if (revisions[item]['timestamp'] > selectedTimestamp){
 //					console.log(revisions[item]['timestamp'])
 //					insert the data here
 					var insert = (revisions[item])
-					
 					Revision.create(insert,function(err,docs){
-						if(err) console.log(err);
+						if(err) {
+							console.log(err);
+                        }
 						console.log("success");
 					});
-					update_array.push(revisions[item])
+					updateArray.push(revisions[item])
 				}
 			}
-			callback(0,update_array)
+			callback(0,updateArray)
 		});	
 	});
-
-}
-
-//Get Distinct Name
-module.exports.getName = function (callback){	
-	Revision.distinct('title')
-	.exec(function(err,result){
-		if(err){
-			console.log("Query error!");
-			callback(1)
-		}
-		else{
-			callback(0,result)
-		}
-	})
 }
 
 //Get article title with most/least revisions
 module.exports.MostRevisions = function (callback){
-	var MostNumberRevisions = [
+	var mostRevisions = [
 		{'$group':{'_id':"$title", 'numOfEdits': {$sum:1}}},
-		{'$sort':{numOfEdits:-1}},
-		{'$limit':1}	
+		{'$sort':{numOfEdits:-1}}
 	]
-	Revision.aggregate(MostNumberRevisions, function(err, results){
+	Revision.aggregate(mostRevisions, function(err, results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
 		}else{
-			callback(0,results[0]['_id'])
+			callback(0,results)
 		}
 	})
 }
-
 module.exports.LeastRevisions = function(callback){
 	var LeastNumberRevisions = [
 		{'$group':{'_id':"$title", 'numOfEdits': {$sum:1}}},
-		{'$sort':{numOfEdits:1}},
-		{'$limit':1}	
+		{'$sort':{numOfEdits:1}}
 	]	
 	Revision.aggregate(LeastNumberRevisions, function(err, results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
 		}else{
-			callback(0,results[0]['_id'])
+			callback(0,results)
 		}
 	})
 }
@@ -141,73 +131,67 @@ module.exports.LargestGroup = function(callback){
 		{'$match':{$and:[ {anon:{$ne:""}},{'usertype':{'$exists':false}}] }},
         {$group:{_id:{user:"$user",title:"$title"}}},
         {$group:{_id:"$_id.title",count:{$sum:1}}},
-        {'$sort':{count:-1}},
-        {'$limit':1}
+        {'$sort':{count:-1}}
 	]	
 	Revision.aggregate(LargestGroup,function(err,results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
 		}else{
-			callback(0,results[0]['_id'])
+			callback(0,results)
 		}		
 	})
 }
-
-
 module.exports.SmallestGroup = function (callback){	
 	var SmallestGroup = [
 		{'$match':{$and:[ {anon:{$ne:""}},{'usertype':{'$exists':false}}] }},
         {$group:{_id:{user:"$user",title:"$title"}}},
         {$group:{_id:"$_id.title",count:{$sum:1}}},
-        {'$sort':{count:1}},
-        {'$limit':1}		
-	]	
-		
+        {'$sort':{count:1}}
+	]
 	Revision.aggregate(SmallestGroup,function(err,results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
 		}else{
-			callback(0,results[0]['_id'])
+			callback(0,results)
 		}		
 	})
 }
 
-//Get article title with longest/shortest hostory
+//Get article title with longest/shortest history
+var isoDate = new Date().toISOString()
+//console.log(isoDate);
 module.exports.LongestHistory = function(callback){
 	var LongestHistory = [
 		{'$group':{'_id':'$title','timestamp':{$min:'$timestamp'}}},
-		{'$sort':{timestamp:1}},
-		{'$limit':1}
+		{'$sort':{timestamp:1}}
 	]
 	Revision.aggregate(LongestHistory,function(err,results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
 		}else{
-			callback(0,results[0]['_id'])
+			callback(0,results)
 		}		
 	})	
 }
-
 module.exports.ShortestHistory = function(callback){
 	var ShortestHistory = [
 		{'$group':{'_id':'$title','timestamp':{$min:'$timestamp'}}},
-		{'$sort':{timestamp:-1}},
-		{'$limit':1}
+		{'$sort':{timestamp:-1}}
 	]
 	Revision.aggregate(ShortestHistory,function(err,results){
 		if (err){
 			console.log("Aggregation Error")
 			callback(1)
 		}else{
-			callback(0,results[0]['_id'])
+			callback(0,results)
 		}		
 	})	
 }
 
-//Get number of anon users
+//Get number of anon, bot, admin, regular users
 module.exports.getAnonNumber = function(callback){
 	var AnonNumber = [
 		{'$match':{anon:""}},
@@ -223,7 +207,6 @@ module.exports.getAnonNumber = function(callback){
 		}		
 	})
 }
-
 module.exports.getBotNumber = function(callback){
 	var BotNumber = [
 		{'$match':{usertype:"bot"}},
@@ -239,7 +222,6 @@ module.exports.getBotNumber = function(callback){
 		}		
 	})
 }
-
 module.exports.getAdminNumber = function(callback){
 	var AdminNumber = [
 		{'$match':{usertype:"admin"}},
@@ -255,7 +237,6 @@ module.exports.getAdminNumber = function(callback){
 		}		
 	})	
 }
-
 module.exports.getUserNumber = function(callback){
 	var UserNumber = [
 		{'$match':{$and:[ {anon:{$ne:""}},{'usertype':{'$exists':false}}] }},
@@ -272,8 +253,11 @@ module.exports.getUserNumber = function(callback){
 	})	
 }
 
+//*****************************************************************
+//functions for article controller
+
 //Get number of revisions for an article
-module.exports.getTotalNumber = function(title,callback){
+module.exports.getRevNumTotal = function(title, callback){
 	Revision.find({'title':title})
 	.count()
 	.exec(function(err,result){
@@ -285,10 +269,8 @@ module.exports.getTotalNumber = function(title,callback){
 		}
 	})
 }
-
-
-//Get number of anon users for an article
-module.exports.getArticleAnonNumber = function(title,callback){
+//Get number of anon,bot,admin,regular users for an article by year
+module.exports.getAnonNumByYear = function(title, callback){
 	var AnonNumber = [
 		{'$match':{anon:"",title:title}},
 		{'$group':{'_id':{"$substr":["$timestamp",0,4]},'numOfEdits':{$sum:1}}},
@@ -303,8 +285,7 @@ module.exports.getArticleAnonNumber = function(title,callback){
 		}		
 	})
 }
-
-module.exports.getArticleBotNumber = function(title,callback){
+module.exports.getBotNumByYear = function(title, callback){
 	var BotNumber = [
 		{'$match':{usertype:"bot",title:title}},
 		{'$group':{'_id':{"$substr":["$timestamp",0,4]},'numOfEdits':{$sum:1}}},
@@ -319,8 +300,7 @@ module.exports.getArticleBotNumber = function(title,callback){
 		}		
 	})
 }
-
-module.exports.getArticleAdminNumber = function(title,callback){
+module.exports.getAdminNumByYear = function(title, callback){
 	var AdminNumber = [
 		{'$match':{usertype:"admin",title:title}},
 		{'$group':{'_id':{"$substr":["$timestamp",0,4]},'numOfEdits':{$sum:1}}},
@@ -335,8 +315,7 @@ module.exports.getArticleAdminNumber = function(title,callback){
 		}		
 	})	
 }
-
-module.exports.getArticleUserNumber = function(title,callback){
+module.exports.getUserNumByYear = function(title, callback){
 	var UserNumber = [
 		{'$match':{$and:[ {anon:{$ne:""}},{'usertype':{'$exists':false}},{title:title}] }},
 		{'$group':{'_id':{"$substr":["$timestamp",0,4]},'numOfEdits':{$sum:1}}},
@@ -352,27 +331,7 @@ module.exports.getArticleUserNumber = function(title,callback){
 	})	
 }
 
-
-
-
-////Get number of registered users for an article
-//module.exports.getArticleRegisterNumber = function(title,callback){
-//	var RegisteredNumber = [
-//		{'$match':{anon:{$ne:""},title:title}},
-//		{$group:{'_id':{year:{"$substr":["$timestamp",0,4]},user:"$user"},'numOfEdits':{$sum:1}}}	
-//	]
-//	Revision.aggregate(RegisteredNumber,function(err,results){
-//		if (err){
-//			console.log("Aggregation Error")
-//			callback(1)
-//		}else{
-//			callback(0,results)
-//		}		
-//	})	
-//	
-//}
-
-//Get top 5 registered users for an article
+//Get top 5 registered(regular) users for an article
 module.exports.getTop5 = function(title,callback){
 	var top5 = [
 		{'$match':{$and:[ {anon:{$ne:""}},{'usertype':{'$exists':false}},{title:title}] }},

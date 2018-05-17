@@ -6,35 +6,38 @@ module.exports.showSignup=function(req,res){
 module.exports.showSignin=function(req,res){
     res.render('signin.pug')
 }
+module.exports.showDescription=function(req,res){
+    res.render('description.pug')
+}
 
 module.exports.addUser=function(req,res) {
     firstname=req.query.firstname;
     lastname=req.query.lastname;
     username=req.query.username;
     email=req.query.email;
-    console.log(email);
+    //console.log(email);
     password=req.query.password;
 
-    var user1 = {
+    var newUser = {
         firstname:firstname,
         lastname:lastname,
         username:username,
         email:email,
         password:password
     };
-    user.saveUser(user1);
+    user.createUser(newUser);
     res.redirect('/');
 }
 
 module.exports.checkUser=function (req,res) {
     email=req.query.email;
     password=req.query.password;
-    console.log(password);
+    //console.log(password);
     var signinUser = {
         email:email,
         password:password
     }
-    user.checkUser(signinUser,function (err,result) {
+    user.findUserByEmail(signinUser,function (err, result) {
         if (err!=0){
             console.log('error')
         }

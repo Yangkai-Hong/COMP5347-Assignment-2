@@ -7,13 +7,12 @@ var express = require('express');
 var path = require('path');
 var request = require('request');
 var mongoose = require('mongoose');
-var router = require('./app/routes/Assignment2.server.routes')
+var router = require('./app/routes/server.routes')
 
 var app = express()
 
 app.set('views', path.join(__dirname,'/app/views'));
 app.use(express.static(path.join(__dirname, 'public')));
-	
 
 app.use('/',router)
 
