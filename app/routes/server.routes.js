@@ -2,6 +2,7 @@ var express = require('express')
 var overallController = require('../controllers/overall.server.controller')
 var articleController = require('../controllers/article.server.controller')
 var landingController = require('../controllers/landing.server.controller')
+var authorController = require('../controllers/author.server.controller')
 var router = express.Router()
 
 //Description page
@@ -24,8 +25,10 @@ router.get('/shortestHistory',overallController.ShortestHistory)
 
 router.get('/wiki',overallController.renderMainPage)
 
-router.get('/wiki',overallController.addAdmin)
+// addBot first, then addAdmin (Because we count users that are both bot and admin as ADMIN
 router.get('/wiki',overallController.addBot)
+router.get('/wiki',overallController.addAdmin)
+
 router.get('/overallChartData',overallController.getAnon)
 router.get('/overallChartData',overallController.getBot)
 router.get('/overallChartData',overallController.getAdmin)
@@ -40,6 +43,9 @@ router.get('/articles',articleController.getBotNumByYear)
 router.get('/articles',articleController.getAdminNumByYear)
 router.get('/articles',articleController.getUserNumByYear)
 
-router.get('/getDataForTop5',articleController.getTop5Data)
+router.get('/articles/top5',articleController.getTop5RevNumByYear)
+
+router.get('/authors',authorController.getUniqueAuthors)
+router.get('/authors/author',authorController.getRevsByAuthor)
 
 module.exports = router

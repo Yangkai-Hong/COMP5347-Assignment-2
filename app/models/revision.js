@@ -350,20 +350,53 @@ module.exports.getTop5 = function(title,callback){
 }
 
 //Get top5 Revision numbers for each year for an article
-module.exports.getYearlyTop5 = function(title,users,callback){
-	var Yearlytop5 = [
+module.exports.getTop5RevNumByYear = function(title, users, callback){
+	var top5ByYear = [
 		{'$match':{title:title,user:{"$in":users}}},
 		{'$group':{_id:{year:{"$substr":["$timestamp",0,4]},user:'$user'},'numOfEdits':{$sum:1} }},
 		{'$sort':{_id:1}}
 		]
-	Revision.aggregate(Yearlytop5,function(err,results){
+	Revision.aggregate(top5ByYear,function(err,results){
 		if (err){
-			console.log("Aggregation Error")
+			console.log("Aggregation Error in revision.js")
 			callback(1)
 		}else{
 			callback(0,results)
 		}		
-	})	
-	
+	})
 }
 
+//Author Analytics
+module.exports.getUniqueAuthors = function(callback){
+	var uniqueAuthors = [
+		{'$match':{user:{'$exists':true}}},
+		{'$match':{user:{$ne:""}}},
+		{'$group':{_id:'$user','revNum':{$sum:1}}},
+		{'$sort':{revNum:-1}}
+	]
+	Revision.aggregate(uniqueAuthors,function (err,results) {
+		if (err){
+			console.log('getUniqueAuthors error in revision.js')
+			callback(1)
+		}
+		else{
+			callback(0,results)
+		}
+    })
+}
+module.exports.getRevsByAuthor = function (author,callback) {
+	var revsByAuthor = [
+		{'$match':{user:author}},
+		{'$group':{_id:{user:'$user',title:'$title',timestamp:'$timestamp'}}},
+		{'$sort':{_id:1}}
+	]
+	Revision.aggregate(revsByAuthor,function (err,results) {
+		if (err){
+			console.log("author aggregation error in revision.js")
+			callback(1)
+		}
+		else {
+			callback(0,results)
+		}
+    })
+}

@@ -1,5 +1,4 @@
 google.charts.load('current', {packages: ['corechart']});
-//google.charts.load('current', {'packages':['corechart','bar']});
 
 var options1 = {'title':'Revision number distribution by year and by user type',
 		'width':400,
@@ -9,12 +8,17 @@ var options2 = {'title':'Revision number distribution by user type',
 		'width':400,
 		'height':300};
 
-var options3 = {'title':'Revision distribution by year of user',
-		'width':400,
-		'height':300};
+var options3 = {'title':'Revision number distribution by year made by ',
+		'width':800,
+		'height':600};
 
 var overallData
+var articleData
+var chart3Data
 var articles
+var showTop5Checkbox = false;
+var top5
+var articleTitle
 
 // show most/least revisions functions
 var revNum = 3;
@@ -82,74 +86,102 @@ function showShortHis(){
 
 // draw google charts
 function drawColumnChart(title){
+    var option = options1;
+    graphData = new google.visualization.DataTable();
+    graphData.addColumn('string', 'Year');
+    graphData.addColumn('number', 'Administrator');
+    graphData.addColumn('number', 'Anonymous');
+    graphData.addColumn('number', 'Bot');
+    graphData.addColumn('number', 'Regular user');
     // draw overall column chart
     if (title == null) {
-        graphData = new google.visualization.DataTable();
-        graphData.addColumn('string', 'Year');
-        graphData.addColumn('number', 'Administrator');
-        graphData.addColumn('number', 'Anonymous');
-        graphData.addColumn('number', 'Bot');
-        graphData.addColumn('number', 'Regular user');
         $.each(overallData, function (index, value) {
             graphData.addRow([value['Year'], value['Administrator'], value['Anonymous'], value['Bot'], value['Regular_user']]);
             //console.log([key,val]);
         })
         var chart = new google.visualization.ColumnChart($("#overallChart")[0]);
-        chart.draw(graphData, options1);
     }
     //draw individual article chart
     else {
         //console.log('draw individual article');
-        var data = google.visualization.arrayToDataTable(barChart_data);
-        for (var item in selected_user){
-            options3['title'] += selected_user[item]
-            options3['title'] += ', '
-        }
-        options3['title'] += 'for Article '
-        options3['title'] += articleTitle
-        var chart = new google.charts.Bar($('#IndividualChart')[0]);
-        chart.draw(data, google.charts.Bar.convertOptions(options1));
+        option['title'] += ' for article '
+        option['title'] += title
+        $.each(articleData,function (index, val) {
+            graphData.addRow([val['year'],val['admin'],val['anon'],val['bot'],val['user']]);
+        })
+        var chart = new google.visualization.ColumnChart($('#IndividualChart')[0]);
     }
+    chart.draw(graphData, option);
 }
-function drawPieChart(){
+function drawPieChart(title){
 	var adminNum = 0;
 	var anonNum = 0;
  	var botNum = 0;
 	var userNum = 0;
+	var option = options2;
 	graphData = new google.visualization.DataTable();
 	graphData.addColumn('string','User Type');
 	graphData.addColumn('number','Percentage');
-	$.each(overallData,function (index,value) {
-		adminNum += value['Administrator'];
-		anonNum += value['Anonymous'];
-		botNum += value['Bot'];
-		userNum += value['Regular_user'];
-    })
-	//console.log(adminNum,anonNum,botNum,userNum);
-    graphData.addRow(['Administrator',adminNum]);
-    graphData.addRow(['Anonymous',anonNum]);
-    graphData.addRow(['Bot',botNum]);
-    graphData.addRow(['Regular user',userNum]);
-	var chart = new google.visualization.PieChart($("#overallChart")[0]);
-	chart.draw(graphData,options2);
+	if(title == null) {
+        $.each(overallData, function (index, value) {
+            adminNum += value['Administrator'];
+            anonNum += value['Anonymous'];
+            botNum += value['Bot'];
+            userNum += value['Regular_user'];
+        })
+        //console.log(adminNum,anonNum,botNum,userNum);
+        var chart = new google.visualization.PieChart($("#overallChart")[0]);
+    }
+    else{
+        option['title'] += ' for article '
+        option['title'] += title
+        $.each(articleData,function(index, val){
+            adminNum += val['admin'];
+            anonNum += val['anon'];
+            botNum += val['bot'];
+            userNum += val['user'];
+        });
+        var chart = new google.visualization.PieChart($('#IndividualChart')[0]);
+    }
+    graphData.addRow(['Administrator', adminNum]);
+    graphData.addRow(['Anonymous', anonNum]);
+    graphData.addRow(['Bot', botNum]);
+    graphData.addRow(['Regular user', userNum]);
+	chart.draw(graphData,option);
 }
 
-function drawBarChart(selected_user,article_name){
-	options3['title'] = 'Revision distribution by year of user'
-	var data = google.visualization.arrayToDataTable(barChart_data);
-	for (var item in selected_user){
-		options3['title'] += selected_user[item]
-		options3['title'] += ', '
-	}
-	options3['title'] += 'for Article '
-	options3['title'] += articleTitle
-	var chart = new google.charts.Bar($('#IndividualChart')[0]);
-	chart.draw(data, google.charts.Bar.convertOptions(options3));
+function drawColumnChartTop5(users, title){
+	var option = options3;
+	graphData = new google.visualization.DataTable();
+	graphData.addColumn('string','year');
+	for (i=0;i<users.length;i++){
+	    graphData.addColumn('number',users[i]);
+        option['title'] += (users[i]+', ')
+    }
+	option['title'] += 'for Article '
+	option['title'] += articleTitle
+    var rowNum = chart3Data.length/users.length;
+	console.log(rowNum);
+    graphData.addRows(rowNum);
+    for (i=0;i<users.length;i++) {
+        $.each(chart3Data, function (index, val) {
+            if (users[i]==val['user']){
+                graphData.setCell(index-i*rowNum,0,val['year'].toString());
+                graphData.setCell(index-i*rowNum,i+1,val['revNum']);
+            }
+        })
+    }
+    var chart = new google.visualization.ColumnChart($('#IndividualChart')[0]);
+	chart.draw(graphData,option);
 }
+
+
 
 //************************************************************
 //************************************************************
 //************************************************************
+
+
 
 $(document).ready(function() {
 	showMostRevs();
@@ -161,10 +193,41 @@ $(document).ready(function() {
 	showLongHis();
 	showShortHis();
 
+	var articlesArray
+    var authorsArray
+
     $.getJSON('/overallChartData',function (result) {
         overallData = result;
         //console.log(overallData);
     })
+    $.getJSON('/mostRevisions',function(result) {
+        articles = result;
+        //console.log(articles);
+        articlesArray = new Array();
+        for (i=0;i<articles.length;i++) {
+            var option = document.createElement('option');
+            //option.innerHTML = articles[i]['_id']+" ("+articles[i]['numOfEdits']+" revisions)";
+            option.innerHTML = articles[i]['_id'];
+            option.value = i;
+            $('#articleList').append(option);
+            articlesArray.push(articles[i]['_id']);
+        }
+        $("#titleInput").autocomplete({
+            source: articlesArray
+        });
+    });
+    $.getJSON('/authors',function (result) {
+        authorsArray = new Array();
+        for (i=0;i<result.length;i++){
+            authorsArray.push(result[i]['_id']);
+        }
+        //console.log(authorsArray);
+        $("#authorInput").autocomplete({
+            minLength:2,
+            source: authorsArray
+        });
+    });
+
     $('#chartList').bind("change",function(event){
         var obj = $('#chartList');
         chart_name = obj.find("option:selected").text()
@@ -182,27 +245,10 @@ $(document).ready(function() {
         }
     })
 
-    $.getJSON('/mostRevisions',function(result) {
-        articles = result;
-        //console.log(articles);
-        var artArray = new Array();
-		for (i=0;i<articles.length;i++) {
-            var option = document.createElement('option');
-            //option.innerHTML = articles[i]['_id']+" ("+articles[i]['numOfEdits']+" revisions)";
-			option.innerHTML = articles[i]['_id'];
-            option.value = i;
-            $('#articleList').append(option);
-            artArray.push(articles[i]['_id']);
-        }
-        $("#titleInput").autocomplete({
-			source: artArray
-		});
-    })
-   	
    	$('#articleList').bind("change",function(event){
    		$('#chartType option:first').prop("selected","selected")
-   		//$('#checkboxArea').html("")
-   		//shown = 0
+   		$('#checkboxArea').html("")
+   		showTop5Checkbox = false;
    		var obj = $('#articleList');
    		articleTitle = obj.find("option:selected").text()
    		title = {title:articleTitle}
@@ -210,6 +256,9 @@ $(document).ready(function() {
    		if (articleTitle == 'Select Article'){
    			return
    		}
+// after updating finishes, then show article information
+        $.ajaxSettings.async = false;
+
    		$.getJSON('/revisions',title,function(result){
    		    alert(result['count']+' new revisions of '+title.title+' have been downloaded')
    		})
@@ -221,10 +270,73 @@ $(document).ready(function() {
    			$('#SelectedTitle').text(Title)
    			$('#SelectedRevisions').text(RevNum)
    			$('#SelectedTop5').text(top5Text)
-   			article_data1 = result['result']
+   			articleData = result['result']
    		})
-		drawColumnChart(articleTitle)
    	})
+   	
+   	$('#chartType').bind("change",function(event){
+   		var obj = $('#chartType');
+   		chart_name = obj.find("option:selected").text()
+   		var obj_name = $('#articleList');
+   		articleTitle = obj_name.find("option:selected").text()
+   		event.preventDefault();
+   		if (chart_name == 'Select Chart Type'){
+   			return;
+   		}
+   		if (chart_name =="Bar Chart1"){
+   			$('#checkboxArea').html("");
+   			showTop5Checkbox = false;
+   			drawColumnChart(articleTitle);
+   		}
+   		if (chart_name == "Pie Chart1"){
+   			$('#checkboxArea').html("");
+   			showTop5Checkbox = false;
+   			drawPieChart(articleTitle);
+   		}
+   		if (chart_name == "Bar Chart2" && showTop5Checkbox == false){
+   			for (var item in top5){
+   	   			var checkbox = document.createElement('input');
+   	   			checkbox.type = 'checkbox';
+   	   			checkbox.value = top5[item];
+
+   	   			var label = document.createElement('label');
+   	   			label.innerHTML = top5[item];
+   	   			
+   	   			$('#checkboxArea').append(checkbox);
+   	   			$('#checkboxArea').append(label);
+   	   			$('#checkboxArea').append("<br />");
+   			}
+   			showTop5Checkbox = true;
+   		}
+   	})
+   	
+   	$('#submit').click(function(event){
+   		var obj = $('#articleList');
+   		articleTitle = obj.find("option:selected").text()
+   		var selectedUser = new Array();
+   		$('#checkboxArea :checked').each(function(){
+   			selectedUser.push($(this).val());
+   		})
+   		if (selectedUser.length == 0){
+   			alert('Please select at least one top5 user!')
+   		}
+   		else{
+	   		event.preventDefault();
+	   		req = {users:selectedUser,title:articleTitle}
+	   		$.getJSON('/articles/top5',req,function(result){
+	   			chart3Data = result
+	   		})
+	   		drawColumnChartTop5(selectedUser,articleTitle)
+   		}
+   	})
+
+    $('#revNumBtn').click(function(event){
+    	revNum = $('#revNumInput').val();
+    	showMostRevs();
+		showLeastRevs();
+    })
+
+    // input title to select an article
     $('#titleBtn').click(function(event){
         selectedTitle = $('#titleInput').val();
         req = {title:selectedTitle};
@@ -232,113 +344,43 @@ $(document).ready(function() {
             alert(result['count']+' new revisions of '+req.title+' have been downloaded')
         })
     })
-   	
-   	$('#chartType').bind("change",function(event){
-   		var obj = $('#chartType');
-   		chart_name = obj.find("option:selected").text()
-   		
-   		var obj_name = $('#articleList');
-   		articleTitle = obj_name.find("option:selected").text()
-   		
-   		event.preventDefault();
-   		
-   		if (chart_name == 'Select Chart Type'){
-   			return;
-   		}
-   		
-   		
-   		if (chart_name =="Bar Chart1"){
-   			$('#checkboxArea').html("")
-   			shown = 0
-   			drawColumnChart(articleTitle)
-   		}
-   		
-   		if (chart_name == "Pie Chart1"){
-   			$('#checkboxArea').html("")
-   			shown = 0
-   			var number_Administrator = 0
-   			var number_Anonymous = 0
-   			var number_Bot = 0
-   			var number_Regular = 0
-   			var tmp = new Array()
-   			tmp.push(['User type','Number'])
-   			for (var year in article_data1){
-   				if (year == 0){continue}
-   				number_Administrator += article_data1[year][1]
-   				number_Anonymous += article_data1[year][2]
-   				number_Bot += article_data1[year][3]
-   				number_Regular += article_data1[year][4]
-   			}
-   			tmp.push(['Administrator',number_Administrator])
-   			tmp.push(['Anonymous',number_Anonymous])
-   			tmp.push(['Bot',number_Bot])
-   			tmp.push(['Regular user',number_Regular])
-   			article_data2 = tmp
-   			drawPieChart(articleTitle)
-   		}
-   		
-   		
-   		if (chart_name == "Bar Chart2" && shown == 0){
-   			for (var item in top5){
-   	   			var checkbox = document.createElement('input');
-   	   			checkbox.type = 'checkbox';
-   	   			checkbox.name = 'name';
-   	   			checkbox.value = item;
-   	   			
-   	   			var label = document.createElement('label');
-//   	   			label.htmlFor = 'CheckBoxTop5';
-   	   			label.appendChild(document.createTextNode(top5[item]));
-   	   			
-   	   			$('#checkboxArea').append(checkbox);
-   	   			$('#checkboxArea').append(label);
-   	   			$('#checkboxArea').append("<br />");
-   			}
-   			shown = 1
-   		}
-   		
-   		
-   	})
-   	
-   	$('#submit').click(function(event){
-   		var obj = $('#articleList');
-   		articleTitle = obj.find("option:selected").text()
-   		
-   		var id_array = new Array();
-   		var selected_user = new Array();
-   		
-   		
-   		$('#checkboxArea :checked').each (function(){
-   			id_array.push($(this).val());
-   		})
-   		if (id_array.length == 0){
-   			alert('please select at least one top user')
-   		}
-   		else{
-	   		event.preventDefault();
-	   		for (var item in id_array){
-	   			user_id = id_array[item]
-	   			top5_user_name = top5[user_id]
-	   			selected_user.push(top5_user_name)
-	   		}
-	   		paras = {users:selected_user,title:articleTitle}
-	   		
-	   		$.ajaxSettings.async = false
-	   		$.getJSON('/getDataForTop5',paras,function(data){
-	   			barChart_data = data['result']
-	   		})
-	   		$.ajaxSettings.async = true
-	   		
-	   		drawBarChart(selected_user,articleTitle)
-   		}
-   	})
-   	
-   	$('#navlist').click(function(event){
-   		event.preventDefault();
-   		
-   	})
-    $('#revNumBtn').click(function(event){
-    	revNum = $('#revNumInput').val();
-    	showMostRevs();
-		showLeastRevs();
+
+    // input author name to do author analytics
+    $('#authorBtn').click(function(event){
+        var author = $('#authorInput').val();
+        $('#selectedAuthor').html("Author: "+author);
+        req = {author:author};
+        var articles = new Array();
+        $.getJSON('/authors/author',req,function(result){
+            for (var i=0;i<result.length;i++){
+                if($.inArray(result[i]['_id']['title'], articles) == -1 ){
+                    articles.push(result[i]['_id']['title']);
+                }
+            }
+            for (var i=0;i<articles.length;i++) {
+                var revNum =0;
+                for (var j=0;j<result.length;j++) {
+                    if (articles[i]==result[j]['_id']['title']){
+                        revNum += 1;
+                    }
+                }
+                var article = document.createElement('li');
+                article.innerHTML = articles[i];
+                var viewBtn = document.createElement('button');
+                viewBtn.innerHTML = "View "+revNum+" revisions";
+                viewBtn.name = articles[i];
+                viewBtn.addEventListener("click", function (ev) {
+                    var timestamps = new Array();
+                    for (var k=0;k<result.length;k++) {
+                        if (this.name==result[k]['_id']['title']){
+                            timestamps.push(result[k]['_id']['timestamp'])
+                        }
+                    }
+                    alert(timestamps);
+                });
+                $('#authorArticlesList').append(article);
+                $('#authorArticlesList').append(viewBtn);
+            }
+        })
     })
 });

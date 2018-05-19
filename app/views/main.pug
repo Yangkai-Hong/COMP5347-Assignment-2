@@ -18,7 +18,6 @@ head
          media='screen')
     link(rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css")
 
-
 body(data-spy='scroll', data-target='#myScrollspy', data-offset='15')
      
      
@@ -35,10 +34,11 @@ body(data-spy='scroll', data-target='#myScrollspy', data-offset='15')
                     li.active
                         a(href='#top_area') TOP
                     li
-                        a(href='#section1') OverView
+                        a(href='#section1') OverView Analytics
                     li
-                        a(href='#section2') Individual
-	        
+                        a(href='#section2') Individual Article Analytics
+                    li
+                        a(href='#section3') Author Analytics
             div.col-sm-10
 		    
               table
@@ -46,7 +46,7 @@ body(data-spy='scroll', data-target='#myScrollspy', data-offset='15')
                     td
                         div#section1
 		      
-                            h3  Overview
+                            h3  Overall Analytics
                             div.list-group
                                 a.list-group-item.active The articles with highest number of revisions:
 
@@ -88,7 +88,7 @@ body(data-spy='scroll', data-target='#myScrollspy', data-offset='15')
                 tr
                     td   
                         div#section2
-                            h3 Individual    
+                            h3 Individual Article Analytics
 		            
                             select#articleList
                                 option(value=-1) Select Article
@@ -118,9 +118,19 @@ body(data-spy='scroll', data-target='#myScrollspy', data-offset='15')
                             input(type='button' value='Get the chart')#submit
 		                   
                             div#IndividualChart
-			               
-		
-	
+                tr
+                    td
+                        div#section3
+                            h3 Author Analytics
+
+                            label(for='authorInput') Author
+                            input#authorInput(type='text' placeholder='Enter author name here...')
+                            button#authorBtn.btn.btn-info Select
+                            ul.list-group
+                                li.list-group-item
+                                    p#selectedAuthor Author:
+                                li.list-group-item Articles:
+                                    ul#authorArticlesList
 	
 	
 	
