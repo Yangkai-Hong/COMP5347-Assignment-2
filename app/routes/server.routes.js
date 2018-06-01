@@ -5,43 +5,48 @@ var landingController = require('../controllers/landing.server.controller')
 var authorController = require('../controllers/author.server.controller')
 var router = express.Router()
 
+// /wiki is used for debugging easily, this line should be delete when deliver
+router.get('/wiki',overallController.renderMainPage)
+
 //Description page
 router.get('/',landingController.showDescription)
 
+//post to log into Main page
+router.post('/',landingController.showMain)
+
 //Sign in page
 router.get('/signin',landingController.showSignin)
-router.get('/user',landingController.checkUser)
+router.get('/users/user',landingController.checkUser)
+
 //Sign up page
 router.get('/signup',landingController.showSignup)
 router.get('/users',landingController.addUser)
 
-//Main page
-router.get('/mostRevisions',overallController.MostRevisions)
-router.get('/leastRevisions',overallController.LeastRevisions)
-router.get('/smallestGroup',overallController.SmallestGroup)
-router.get('/largestGroup',overallController.LargestGroup)
-router.get('/longestHistory',overallController.LongestHistory)
-router.get('/shortestHistory',overallController.ShortestHistory)
+//Overall analytics
+router.get('/mostRevisions',overallController.mostRevisions)
+router.get('/leastRevisions',overallController.leastRevisions)
+router.get('/largestGroup',overallController.largestGroup)
+router.get('/smallestGroup',overallController.smallestGroup)
+router.get('/longestHistory',overallController.longestHistory)
+router.get('/shortestHistory',overallController.shortestHistory)
 
-router.get('/wiki',overallController.renderMainPage)
-
-// addBot first, then addAdmin (Because we count users that are both bot and admin as ADMIN
-router.get('/wiki',overallController.addBot)
-router.get('/wiki',overallController.addAdmin)
-
+// get data for overall analytics charts
 router.get('/overallChartData',overallController.getAnon)
 router.get('/overallChartData',overallController.getBot)
 router.get('/overallChartData',overallController.getAdmin)
 router.get('/overallChartData',overallController.getUser)
 
+//get articles list
+router.get('/articles',articleController.getAllArticles)
+//update article
 router.get('/revisions',articleController.updateRevs)
-
-router.get('/articles',articleController.getRevNumTotal)
-router.get('/articles',articleController.getTop5)
-router.get('/articles',articleController.getAnonNumByYear)
-router.get('/articles',articleController.getBotNumByYear)
-router.get('/articles',articleController.getAdminNumByYear)
-router.get('/articles',articleController.getUserNumByYear)
+//show article data
+router.get('/articles/article',articleController.getRevNumTotal)
+router.get('/articles/article',articleController.getTop5)
+router.get('/articles/article',articleController.getAnonNumByYear)
+router.get('/articles/article',articleController.getBotNumByYear)
+router.get('/articles/article',articleController.getAdminNumByYear)
+router.get('/articles/article',articleController.getUserNumByYear)
 
 router.get('/articles/top5',articleController.getTop5RevNumByYear)
 

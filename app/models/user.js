@@ -15,25 +15,52 @@ var userSchema = new mongoose.Schema(
 )
 var User = mongoose.model('User',userSchema,'users')
 
-module.exports.createUser = function(data) {
-    User.create(data, function (err) {
-        if (err) return handleError(err);
-        // saved!
+module.exports.createUser = function(user,callback) {
+    User.find({email:user.email},function (err,result) {
+        if (result.length){
+            User.update(
+                {email:user.email},
+                {$set:{firstname:user.firstname,
+                        lastname:user.lastname,
+                        username:user.username,
+                        password:user.password}},
+                function (err) {
+                    if (err){
+                        console.log(err);
+                        callback(1);
+                    }
+                    else {
+                        callback(0);
+                    }
+                }
+            )
+        }
+        else {
+            User.create(user, function (err) {
+                if (err) {
+                    console.log(err);
+                    callback(1);
+                }
+                else {
+                    callback(0);
+                }
+            })
+        }
     })
 }
-module.exports.findUserByEmail =function (data, callback) {
-    //var checkUser = [
-    //    {'$match':{email:data.email}}
-    //]
-    User.aggregate([
-        {'$match':{email:data.email}}
-        ],function (err,results) {
+module.exports.findUserByEmail =function (user, callback) {
+    var user=[
+        {'$match':{email:user.email}}
+    ]
+    User.aggregate(user,function (err,result) {
             if (err){
-                console.log("Aggregation error");
+                console.log("findUserByEmail aggregation error");
                 callback(1)
             }
             else{
-                callback(0,results)
+                callback(0,result)
             }
         })
 }
+
+

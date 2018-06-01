@@ -1,146 +1,96 @@
-var express = require('express')
 var revision = require("../models/revision.js")
-var fs = require('fs')
 
-var adminArray = new Array()
-var botArray = new Array()
 var AnonNumber = new Array()
 var BotNumber = new Array()
 var AdminNumber = new Array()
 var UserNumber = new Array()
 
-// render main page with parameters
 module.exports.renderMainPage = function(req,res){
     res.render("main.pug");
 }
 
-module.exports.MostRevisions = function(req,res,next){
-	revision.MostRevisions(function(err,result){
-        var MostRevisions = new Array();
-		if (err != 0){
-			MostRevisions = 'error';
-		}
-		else{
-			for(i=0;i<result.length;i++) {
-                MostRevisions.push(result[i]);
-            }
-            res.json(MostRevisions);
-            next()
-		}		
-	})	
-}
-module.exports.LeastRevisions =function(req,res,next){
-	revision.LeastRevisions(function(err,result){
-        var LeastRevisions = new Array();
-		if (err != 0){
-			LeastRevisions = 'error';
-		}
-		else{
-            for(i=0;i<result.length;i++) {
-                LeastRevisions.push(result[i]);
-            }
-            res.json(LeastRevisions);
-            next()
-		}		
-	})
-}
-
-module.exports.SmallestGroup = function(req,res,next){
-	revision.SmallestGroup(function(err,result){
-        var SmallestGroup = new Array();
-		if (err != 0){
-			SmallestGroup = 'error'
-		}
-		else{
-			for (i=0;i<result.length;i++){
-				SmallestGroup.push(result[i]);
-			}
-			res.json(SmallestGroup);
-			next()
-		}		
-	})	
-}
-module.exports.LargestGroup = function(req,res,next){
-	revision.LargestGroup(function(err,result){
-        var LargestGroup = new Array();
-		if (err != 0){
-			LargestGroup = 'error'
-		}
-		else{
-            for (i=0;i<result.length;i++){
-                LargestGroup.push(result[i]);
-            }
-            res.json(LargestGroup);
-            next()
-		}		
-	})
-}
-
-// longest/shortest history
-module.exports.LongestHistory = function(req,res,next){
-	revision.LongestHistory(function(err,result){
-        var longHis = new Array();
-		if (err != 0){
-			longHis = 'error'
-		}
-		else{
-            for (i=0;i<result.length;i++){
-                longHis.push(result[i]);
-            }
-            res.json(longHis);
-            next()
-		}	
-	})
-}
-module.exports.ShortestHistory = function(req,res,next){
-	revision.ShortestHistory(function(err,result){
-        var shortHis = new Array();
-		if (err != 0){
-			shortHis = 'error'
-		}
-		else{
-            for (i=0;i<result.length;i++){
-                shortHis.push(result[i]);
-            }
-            res.json(shortHis);
-            next()
-		}	
-	})
-}
-
-// convert admin.txt/bot.txt content to array
-var admins = fs.createReadStream('./public/admin.txt');
-var bots = fs.createReadStream('./public/bot.txt')
-function txtToArray(txt,array) {
-    var remainingData = '';
-    txt.on('data', function(data) {
-        remainingData += data;
-        if (remainingData.charAt(remainingData.length-1) != '\n'){
-            remainingData+='\n'
+module.exports.mostRevisions = function(req,res,next) {
+    var num = parseInt(req.query.num);
+    //console.log(num);
+    revision.MostRevisions(num, function (err, result) {
+        if (err != 0) {
+            console.log('error')
         }
-        //console.log(remainingData);
-        var index = remainingData.indexOf('\n');
-        //console.log(index);
-        while (index > -1) {
-            var line = remainingData.substring(0, index);
-            // new remainingData = remainingData - line
-            remainingData = remainingData.substring(index + 1);
-            array.push(line);
-            index = remainingData.indexOf('\n');
+        else {
+			res.json(result);
         }
-        console.log(array.length)
-    });
+    })
 }
-txtToArray(admins,adminArray);
-txtToArray(bots,botArray);
-// updateRevs revisions: adding usertype attribute
-module.exports.addAdmin = function(req, res, next){
-    revision.addUsertype(adminArray,'admin',next)
+module.exports.leastRevisions = function(req,res,next) {
+    var num = parseInt(req.query.num);
+    revision.LeastRevisions(num, function (err, result) {
+        LeastRevisions = new Array();
+        if (err != 0) {
+            console.log('error')
+        }
+        else {
+            res.json(result);
+        }
+    })
+}
+module.exports.largestGroup = function(req,res,next) {
+    revision.LargestGroup(function (err, result) {
+        LargestGroup = new Array();
+        if (err != 0) {
+            console.log('error')
+        }
+        else {
+            res.json(result)
+        }
+    })
+}
+module.exports.smallestGroup = function(req,res,next) {
+    revision.SmallestGroup(function (err, result) {
+        SmallestGroup = new Array();
+        if (err != 0) {
+            console.log('error')
+        }
+        else {
+            res.json(result)
+        }
+    })
+}
+module.exports.longestHistory = function(req,res,next) {
+    revision.top3LongestHistory(function (err, result) {
+        longHis = new Array();
+        if (err != 0) {
+            console.log('error')
+        }
+        else {
+            res.json(result)
+        }
+    })
+}
+module.exports.shortestHistory = function(req,res,next){
+    revision.ShortestHistory(function(err,result){
+        shortHis = new Array();
+        if (err != 0){
+            console.log('error')
+        }
+        else{
+            res.json(result)
+        }
+    })
+	//next();
 }
 
-module.exports.addBot = function(req, res, next){
-    revision.addUsertype(botArray,'bot',next)
-}
+//show revisions duration information
+revision.getDuration(function (err,result) {
+	if (err!=0){
+		console.log('error')
+	}
+	else {
+		var min = result[0];
+		var max = result[result.length-1]
+		console.log(min);
+		console.log(max);
+	}
+});
 
 // get number of anon, bot, admin and regular users
 module.exports.getAnon = function(req,res,next){

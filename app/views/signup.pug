@@ -3,21 +3,25 @@ html(lang='en')
     head
         meta(charset='utf-8')
         meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
-        meta(name='description', content='')
-        meta(name='author', content='')
-        script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js") //CDN for Jquery
+        script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js")
         script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js")
+        script(src="signup.js")
         title WikiLatic: Sign up
-        // Bootstrap core CSS
         link(href='https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css', rel='stylesheet')
-        // Custom styles for this template
         link(href='css/landing.css', rel='stylesheet')
     body.text-center
-        form.form-signin(action='/users' method='GET')
-            h1.h3.mb-3.font-weight-normal Sign up
+        form.form-signin
+            div#alertSuccess.alert.alert-success
+                p Success! Click to
+                    a(href="/signin").alert-link  sign in.
+            div#alertFail.alert.alert-danger
+                p Each field can't be blank.
+            h1.h3.mb-3.font-weight-normal Join WikiLatic
             input#inputFirstname.form-control(type='text',name='firstname', placeholder='First name', required='',autofocus='')
             input#inputLastname.form-control(type='text',name='lastname', placeholder='Last name', required='')
             input#inputUsername.form-control(type='text',name='username', placeholder='User name', required='')
             input#inputEmail.form-control(type='email',name='email', placeholder='Email address', required='')
             input#inputPassword.form-control(type='password',name='password', placeholder='Password', required='')
-            button#buttonSignup.btn.btn-lg.btn-primary.btn-block(type='submit') Sign up
+            br
+            button#buttonSignup.btn.btn-lg.btn-primary.btn-block Create an account
+            p.mt-5.mb-3.text-muted &copy; WikiLatic 2018 Group23

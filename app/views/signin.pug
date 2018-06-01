@@ -3,24 +3,23 @@ html(lang='en')
     head
         meta(charset='utf-8')
         meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
-        meta(name='description', content='')
-        meta(name='author', content='')
         title WikiLatic: Sign in
-        // Bootstrap core CSS
+        script(src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js")
+        script(src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.min.js")
+        script(src="https://cdn.rawgit.com/mgalante/jquery.redirect/master/jquery.redirect.js")
+        script(src="signin.js")
         link(href='https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css', rel='stylesheet')
-        // Custom styles for this template
         link(href='css/landing.css', rel='stylesheet')
     body.text-center
-        form.form-signin(action='/user' method='GET')
-            h1.h3.mb-3.font-weight-normal Please sign in
-            label.sr-only(for='inputEmail') Email address
+        form.form-signin
+            div#alertError.alert.alert-danger.fade.show
+                p Incorrect username or password.
+            h1.h3.mb-3.font-weight-normal Sign in to WikiLatic
             input#inputEmail.form-control(type='email', name='email',placeholder='Email address', required='', autofocus='')
-            label.sr-only(for='inputPassword') Password
             input#inputPassword.form-control(type='password',name='password' ,placeholder='Password', required='')
-            .checkbox.mb-3
-                label
-                    input(type='checkbox', value='remember-me')
-                    |  Remember me
-            button.btn.btn-lg.btn-primary.btn-block(type='submit') Sign in
-            p.mt-5.mb-3.text-muted
-                a(href='/signup') Sign up
+            br
+            button#signinBtn.btn.btn-lg.btn-primary.btn-block Sign in
+            br
+            p New to WikiLatic?
+                a(href='/signup')  Create an account
+            p.mt-5.mb-3.text-muted &copy; WikiLatic 2018 Group23

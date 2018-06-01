@@ -1,51 +1,74 @@
 var user = require("../models/user.js")
 
-module.exports.showSignup=function(req,res){
-    res.render('signup.pug')
-}
 module.exports.showSignin=function(req,res){
     res.render('signin.pug')
 }
-module.exports.showDescription=function(req,res){
+module.exports.showDescription=function(req, res){
     res.render('description.pug')
 }
-
-module.exports.addUser=function(req,res) {
-    firstname=req.query.firstname;
-    lastname=req.query.lastname;
-    username=req.query.username;
-    email=req.query.email;
-    //console.log(email);
-    password=req.query.password;
-
-    var newUser = {
-        firstname:firstname,
-        lastname:lastname,
-        username:username,
-        email:email,
-        password:password
-    };
-    user.createUser(newUser);
-    res.redirect('/');
+module.exports.showMain=function(req,res){
+    if (req.body.loginCredential=='true'){
+        res.render('main.pug')
+    }
+    //console.log(req.body);
 }
 
-module.exports.checkUser=function (req,res) {
-    email=req.query.email;
-    password=req.query.password;
-    //console.log(password);
+module.exports.addUser=function(req,res,next) {
+    var firstname=req.query.firstname;
+    var lastname=req.query.lastname;
+    var username=req.query.username;
+    var email=req.query.email;
+    var password=req.query.password;
+    if (firstname&&lastname&&username&&email&&password) {
+        var newUser = {
+            firstname: firstname,
+            lastname: lastname,
+            username: username,
+            email: email,
+            password: password
+        };
+    }
+    else {
+        console.log("Some field is null!")
+    }
+    user.createUser(newUser,function (err) {
+        if (err!=0){
+            console.log('error!')
+            res.json({inDatabase:false});
+        }
+        res.json({inDatabase:true});
+    });
+}
+
+module.exports.showSignup=function(req,res){
+    res.render('signup.pug')
+}
+
+module.exports.checkUser=function (req,res,next) {
+    //console.log(req.body)
+    var email=req.query.email;
+    var password=req.query.password;
     var signinUser = {
         email:email,
         password:password
     }
     user.findUserByEmail(signinUser,function (err, result) {
         if (err!=0){
-            console.log('error')
+            console.log('error in checkUser landing controller')
+            res.json({loginCredential:false});
         }
-        else{
-            console.log(result[0]);
-            if(password==result[0].password){
-                console.log('signed in!');
-                res.redirect('/wiki');
+        else {
+            if (result.length) {
+                if (password == result[0].password) {
+                    console.log('signed in!');
+                    res.json({loginCredential: true});
+                }
+                else {
+                    res.json({loginCredential: false});
+                }
+            }
+            else {
+                res.json({loginCredential:false});
             }
         }
     })

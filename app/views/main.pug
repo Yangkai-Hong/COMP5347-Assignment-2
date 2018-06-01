@@ -1,139 +1,131 @@
 doctype html
-
 html(lang="en")
 head
-    title Data Analysis for WIKI articles
-    script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js") //CDN for Jquery
+    title WikiLatic
+    script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js")
     script(src="//code.jquery.com/ui/1.10.4/jquery-ui.js")
-    script(src="https://www.gstatic.com/charts/loader.js") //CDN for Google Chart
+    script(src="https://www.gstatic.com/charts/loader.js")
     script(src="main.js")
     script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js")
-    link(rel='stylesheet'
-         type='text/css'
-         href='css/main.css'
-         media='screen')
-    link(rel='stylesheet'
-         type='text/css'
-         href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
-         media='screen')
+    link(rel='stylesheet' href='css/main.css')
+    link(rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
     link(rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css")
 
-body(data-spy='scroll', data-target='#myScrollspy', data-offset='15')
-     
-     
-      h1#top_area  Data Analysis Web Application
-      br
-      br
-      br
-      br
-      br
-      div.container
-        div.row
-            nav#myScrollspy.col-sm-2
-                ul#navlist.nav.nav-pills.nav-stacked(data-spy='affix', data-offset-top='205')
-                    li.active
-                        a(href='#top_area') TOP
-                    li
-                        a(href='#section1') OverView Analytics
-                    li
-                        a(href='#section2') Individual Article Analytics
-                    li
-                        a(href='#section3') Author Analytics
-            div.col-sm-10
-		    
-              table
+body(data-spy="scroll" data-target="#scrollSpy")
+    nav.navbar.navbar-default
+        div.navbar-header
+            a.navbar-brand Data Analytic Web Application (WikiLatic)
+        div
+            p.navbar-text(style="float:right") User: #{email}
+    div#scrollSpy.col-md-2
+        ul#sideNav.nav.nav-tabs.nav-stacked
+            li.active
+                a(href="#section1") Overall Analytics
+            li
+                a(href="#section2") Individual Article Analytics
+            li
+                a(href="#section3") Author Analytics
+    div.col-md-10
+        div.panel.panel-info
+            div.panel-heading
+                h3#section1.panel-title Overall Analytics
+            table.table.table-hover
+                tbody
+                    tr
+                        td The articles with highest number of revisions:
+                        td
+                            ul#mostRevs
+                    tr
+                        td The articles with lowest number of revisions:
+                        td
+                            ul#leastRevs
+                    tr
+                        td The number of articles with highest and lowest number of revisions to display:
+                        td.input-group
+                            input#revNumInput(type='number'
+                                            min=1
+                                            value=3
+                                            data-container="body"
+                                            data-toggle="popover"
+                                            data-placement="top"
+                                            data-content="Invalid input, at least 1").form-control
+                            span.input-group-btn
+                                button#revNumBtn.btn.btn-info Change
+                    tr
+                        td The article edited by largest group of registered users:
+                        td#largeGp
+                    tr
+                        td The article edited by smallest groups of registered users:
+                        td#smallGp
+                    tr
+                        td The top 3 articles with the longest history (measured by age):
+                        td
+                            ul#longHis
+                    tr
+                        td The article with the shortest history (measured by age):
+                        td#shortHis
+                    tr
+                        td(colspan=2)
+                            select#chartList.col-md-6
+                                option(value=-1) Select Chart Type
+                                option(value=0) Bar Chart
+                                option(value=1) Pie Chart
+                    tr
+                        td(colspan=2)
+                            div#overallChart
+
+        div.panel.panel-info
+            div.panel-heading
+                h3#section2.panel-title Individual Article Analytics
+            table.table.table-hover
                 tr
+                    td#alert(colspan=2)
+                tr
+                    td.col-md-6
+                        select#articleList(style="")
+                            option(value=-1) Select Article
                     td
-                        div#section1
-		      
-                            h3  Overall Analytics
-                            div.list-group
-                                a.list-group-item.active The articles with highest number of revisions:
-
-                                a#mostRevs.list-group-item
-
-                                a.list-group-item.active The articles with lowest number of revisions:
-
-                                a#leastRevs.list-group-item
-
-                                a.list-group-item
-                                    input#revNumInput.col-sm-10(type='text' placeholder='The number of articles for highest and lowest number of revisions to display')
-                                    button#revNumBtn.btn.btn-info Change
-
-                                a.list-group-item.active The article edited by largest group of registered users:
-
-                                a#largeGp.list-group-item
-		
-                                a.list-group-item.active The article edited by smallest groups of registered users:
-
-                                a#smallGp.list-group-item
-
-                                a.list-group-item.active The top 3 articles with the longest history (measured by age):
-
-                                a#longHis.list-group-item
-		
-                                a.list-group-item.active The article with the shortest history (measured by age):
-
-                                a#shortHis.list-group-item
-                            hr
-		            
-                            select#chartList
-                                option(value=-1) Select The Chart Type
-                                option(value=0) Barchart
-                                option(value=1) Piechart
-		
-                        div#overallChart
-		            
-                        hr
+                        div.input-group
+                            input#titleInput(type='text' placeholder='Or enter an article title here...' style="").form-control
+                            span.input-group-btn
+                                button#titleBtn.btn.btn-info Search
                 tr
-                    td   
-                        div#section2
-                            h3 Individual Article Analytics
-		            
-                            select#articleList
-                                option(value=-1) Select Article
-                            br
-                            label(for='titleInput') Title
-                            input#titleInput(type='text' placeholder='Enter article title here...')
-                            button#titleBtn.btn.btn-info Select
-                            br
-		            
-                            ul.list-group
-                                li.list-group-item
-                                    p#SelectedTitle Title:
-                                li.list-group-item  
-                                    p#SelectedRevisions Total number of revisions:
-                                li.list-group-item
-                                    p#SelectedTop5 Top 5 users:
-		            
-                            hr
-		          
+                    td Title:
+                    td#SelectedTitle
+                tr
+                    td Total number of revisions:
+                    td#SelectedRevisions
+                tr
+                    td Top 5 users:
+                    td#SelectedTop5
+                tr
+                    td(colspan=2)
+                        div.col-md-6
                             select#chartType
                                 option(value=-1) Select Chart Type
-                                option(value=0) Bar Chart1
-                                option(value=1) Pie Chart1
-                                option(value=3) Bar Chart2
-                            div#checkboxArea
-                            br
-                            input(type='button' value='Get the chart')#submit
-		                   
-                            div#IndividualChart
+                                option(value=0) Bar Chart
+                                option(value=1) Pie Chart
+                                option(value=2) Bar Chart By Top5 Users
+                        div#checkboxArea.col-md-6
+                        div.col-md-6
+                            button#submit(style='').btn.btn-info Draw
+                tr
+                    td(colspan=2)
+                        div#IndividualChart
+
+        div.panel.panel-info
+            div.panel-heading
+                h3#section3.panel-title Author Analytics
+            table.table.table-hover
+                tr
+                    td.input-group
+                        input#authorInput(type='text' placeholder='Enter author name here...').form-control
+                        span.input-group-btn
+                            button#authorBtn.btn.btn-info Search
+                tr
+                    td#selectedAuthor Author:
+                tr
+                    td#authorArticlesList Articles List:
                 tr
                     td
-                        div#section3
-                            h3 Author Analytics
-
-                            label(for='authorInput') Author
-                            input#authorInput(type='text' placeholder='Enter author name here...')
-                            button#authorBtn.btn.btn-info Select
-                            ul.list-group
-                                li.list-group-item
-                                    p#selectedAuthor Author:
-                                li.list-group-item Articles:
-                                    ul#authorArticlesList
-	
-	
-	
-	
-	
-	
+                        div#accordion.panel-group

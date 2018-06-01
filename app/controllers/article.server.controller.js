@@ -1,18 +1,23 @@
-var express = require('express')
 var revision = require("../models/revision.js")
-var fs = require('fs')
 
 var number
-
-//var admin_txt = new Array()
-//var bot_txt = new Array()
-//var RegisteredNumber = new Array()
-
 var top5 = new Array()
 var AnonNumber = new Array()
 var adminNumber = new Array()
 var botNumber = new Array()
 var userNumber = new Array()
+
+//get all articles
+module.exports.getAllArticles = function(req,res,next){
+	revision.getArticles(function (err,result) {
+		if (err!=0){
+			console.log('error in getAllArticles')
+		}
+		else {
+			res.json(result);
+		}
+    })
+}
 
 module.exports.updateRevs = function(req, res){
 	title = req.query.title
@@ -21,7 +26,6 @@ module.exports.updateRevs = function(req, res){
 			res.json({'count':'error'})
 		}else{
 			//console.log(result)
-			//for (var i in result){console.log(result[i]['timestamp'])}
 			updatedNum = result.length
 			res.json({'count':updatedNum})
 		}
@@ -42,7 +46,7 @@ module.exports.getRevNumTotal = function(req, res, next){
 
 module.exports.getTop5 = function(req,res,next){
 	title = req.query.title
-	revision.getTop5(title,function(err,result){
+	revision.getTop5(title,function(err, result){
 		if (err != 0){console.log('error')}
 		else{
 			top5.splice(0,top5.length)
@@ -116,7 +120,7 @@ module.exports.getAdminNumByYear = function(req, res, next){
 	})		
 }
 module.exports.getUserNumByYear = function(req, res, next){
-	title = req.query.title	
+	title = req.query.title
 	revision.getUserNumByYear(title,function(err, result){
 		if (err != 0){console.log('error')}
 		else{
@@ -130,6 +134,7 @@ module.exports.getUserNumByYear = function(req, res, next){
 						userNumber[j-2001]['numOfEdits'] += result[i]['numOfEdits']
 				}
 			}
+
 			//convert data to google char format
 			var chart = new Array()
 			for (var year = 2001 ; year < 2018 ; year ++){
