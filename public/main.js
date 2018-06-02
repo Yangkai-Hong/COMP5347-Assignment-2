@@ -154,8 +154,7 @@ function drawColumnChartTop5(users, title){
 	chart.draw(graphData,option);
 }
 function updateSelectedArticle() {
-    $.getJSON('/revisions', req, function (result) {
-        //alert(result['count']+' new revisions of '+req.title+' have been downloaded')
+    $.getJSON('/article/revisions', req, function (result) {
         $('#alert').html("");
         var alert1 = document.createElement('div');
         alert1.setAttribute("class", "alert alert-success alert-dismissable");
@@ -163,7 +162,12 @@ function updateSelectedArticle() {
         alert2.setAttribute("class", "close");
         alert2.setAttribute("data-dismiss", "alert");
         alert2.innerHTML = "&times";
-        alert1.innerText = result['count'] + ' new revisions of ' + req.title + ' have been downloaded';
+        if (result['count']>0) {
+            alert1.innerText = 'Update ' + result['count'] + ' revisions of ' + req.title;
+        }
+        else {
+            alert1.innerText = 'Already up-to-date';
+        }
         alert1.appendChild(alert2);
         $('#alert').append(alert1);
     })
@@ -353,7 +357,7 @@ $(document).ready(function() {
             selectedUser.push($(this).val());
         })
         if (selectedUser.length == 0){
-            alert('Please select at least one top5 user!')
+            alert('Please select at least one top5 user!');
         }
         else{
             event.preventDefault();
@@ -363,7 +367,7 @@ $(document).ready(function() {
             $.getJSON('/articles/top5',req,function(result){
                 chart3Data = result
             })
-            $.ajaxSettings.async = true;
+            $.ajaxSettings.async = true ;
             drawColumnChartTop5(selectedUser,articleTitle)
         }
     })
@@ -397,11 +401,13 @@ $(document).ready(function() {
             }
             for (var i=0;i<articles.length;i++) {
                 var revNum =0;
-                var timestamps = new Array();
+                var article7 = document.createElement('ul');
                 for (var j=0;j<result.length;j++) {
                     if (articles[i]==result[j]['_id']['title']){
                         revNum += 1;
-                        timestamps.push(result[j]['_id']['timestamp']);
+                        var li = document.createElement('li');
+                        li.innerHTML = result[j]['_id']['timestamp'];
+                        article7.appendChild(li);
                     }
                 }
                 /*
@@ -443,11 +449,12 @@ $(document).ready(function() {
                 var article6 = document.createElement('div');
                 article6.setAttribute("class","panel-body");
                 article5.appendChild(article6);
+
+                article6.appendChild(article7);
+
                 var article = document.getElementById("accordion");
                 article.appendChild(article1);
 
-                //console.log(timestamps);
-                article6.innerText = timestamps;
             }
         })
     })

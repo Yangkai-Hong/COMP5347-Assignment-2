@@ -117,13 +117,17 @@ module.exports.updateRevisions = function (title, callback){
 			}
 			//console.log(selectedTimestamp)
 			for (var item in revisions){
-				if (revisions[item]['timestamp'] > selectedTimestamp){
+				var lastUpdate = Date.parse(selectedTimestamp);
+				var newUpdate = Date.parse(revisions[item]['timestamp']);
+				// in millisecond
+				var timeDiff = newUpdate - lastUpdate;
+				// if any update more than one day ago, then update the database
+				if (timeDiff > 86400000){
 					var insert = (revisions[item])
 					Revision.create(insert,function(err,docs){
 						if(err) {
 							console.log(err);
                         }
-						console.log("success");
 					});
 					updateArray.push(revisions[item])
 				}

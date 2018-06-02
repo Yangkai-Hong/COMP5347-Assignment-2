@@ -19,6 +19,7 @@ module.exports.getAllArticles = function(req,res,next){
     })
 }
 
+//update revisions for an individual article
 module.exports.updateRevs = function(req, res){
 	title = req.query.title
 	revision.updateRevisions(title,function(err, result){

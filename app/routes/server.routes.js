@@ -38,18 +38,23 @@ router.get('/overallChartData',overallController.getUser)
 
 //get articles list
 router.get('/articles',articleController.getAllArticles)
+
 //update article
-router.get('/revisions',articleController.updateRevs)
+router.get('/article/revisions',articleController.updateRevs)
+
 //show article data
 router.get('/articles/article',articleController.getRevNumTotal)
 router.get('/articles/article',articleController.getTop5)
+//get data for drawing article charts
 router.get('/articles/article',articleController.getAnonNumByYear)
 router.get('/articles/article',articleController.getBotNumByYear)
 router.get('/articles/article',articleController.getAdminNumByYear)
 router.get('/articles/article',articleController.getUserNumByYear)
 
+//get data for drawing article top5 charts
 router.get('/articles/top5',articleController.getTop5RevNumByYear)
 
+//Author analytics
 router.get('/authors',authorController.getUniqueAuthors)
 router.get('/authors/author',authorController.getRevsByAuthor)
 
