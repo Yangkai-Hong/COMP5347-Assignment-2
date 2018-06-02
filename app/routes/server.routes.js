@@ -5,7 +5,7 @@ var landingController = require('../controllers/landing.server.controller')
 var authorController = require('../controllers/author.server.controller')
 var router = express.Router()
 
-// /wiki is used for debugging easily, this line should be delete when deliver
+// wiki is used for debugging easily, this line should be delete when deliver
 //router.get('/wiki',overallController.renderMainPage)
 
 //Description page

@@ -263,7 +263,7 @@ $(document).ready(function() {
             option.innerHTML = text;
             option.value = title;
             $('#articleList').append(option);
-            articlesArray.push(text);
+            articlesArray.push(title);
         }
         $("#titleInput").autocomplete({
             source: articlesArray
@@ -291,11 +291,7 @@ $(document).ready(function() {
     })
     // input title to select an article
     $('#titleBtn').click(function(event){
-        var text = $('#titleInput').val();
-        console.log(text);
-        var title = text.split('(')[0];
-        title = title.substring(0,title.length-1);
-        console.log(title)
+        var title = $('#titleInput').val();
         req = {title:title};
 
         $.ajaxSettings.async = false;
