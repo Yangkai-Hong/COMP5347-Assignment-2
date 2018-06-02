@@ -17,7 +17,7 @@ $(document).ready(function () {
                                  '</form>');
                     $('body').append(form);
                     form.submit();*/
-                    $.redirect('/',{loginCredential:true},"POST")
+                    $.redirect('/',{loginCredential:true,email:email},"POST")
                 }
                 else {
                     $('#alertError').show();

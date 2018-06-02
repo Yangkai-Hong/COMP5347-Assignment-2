@@ -1,6 +1,5 @@
 var mongoose = require('mongoose')
 var request = require('request')
-var fs = require('fs')
 
 var revSchema = new mongoose.Schema(
 		{
@@ -18,67 +17,22 @@ var revSchema = new mongoose.Schema(
 		{
 		    versionKey: false 
 		});
-// index for most/least revisions
-//revSchema.index({title:1});
-// index for largest/smallest group
-revSchema.index({anon:-1,usertype:1,user:1,title:1});
-// index for longest/shortest history
-revSchema.index({title:1,timestamp:1});
+
+// index schemas
+revSchema.index({user:1});
+revSchema.index({timestamp:1});
+revSchema.index({timestamp:-1});
+revSchema.index({title:1});
+revSchema.index({anon:-1});
+revSchema.index({anon:1});
+revSchema.index({usertype:1});
+revSchema.index({usertype:-1});
 
 var Revision = mongoose.model('Revision', revSchema, 'revisions')
 
 mongoose.connect('mongodb://localhost/wikipedia',function () {
 	  console.log('mongodb connected')
 });
-
-// Add usertype attribute to revisions
-// 1. convert admin.txt/bot.txt content to array
-var adminArray = new Array()
-var botArray = new Array()
-var admins = fs.createReadStream('./public/admin.txt');
-var bots = fs.createReadStream('./public/bot.txt')
-function txtToArray(txt,array) {
-    var remainingData = '';
-    txt.on('data', function(data) {
-        remainingData += data;
-        if (remainingData.charAt(remainingData.length-1) != '\n'){
-            remainingData+='\n'
-        }
-        //console.log(remainingData);
-        var index = remainingData.indexOf('\n');
-        //console.log(index);
-        while (index > -1) {
-            var line = remainingData.substring(0, index);
-            // new remainingData = remainingData - line
-            remainingData = remainingData.substring(index + 1);
-            array.push(line);
-            index = remainingData.indexOf('\n');
-        }
-        //console.log(array.length)
-    });
-}
-txtToArray(admins,adminArray);
-txtToArray(bots,botArray);
-// 2. define add user type function
-function addUsertype (array, usertype){
-    Revision.update(
-        {user:{"$in":array}},
-        {$set:{"usertype":usertype}},
-        {'multi':true},
-        function(err){
-            if(err){
-                console.log('error in addUsertype revision.js')
-            }
-            else{
-            	console.log('add userType to '+array.length+' users')
-			}
-        });
-}
-// 3. addBot first, then addAdmin (Because we count users that are both bot and admin as ADMIN）
-addUsertype(botArray,'bot');
-addUsertype(adminArray,'admin');
-
-
 
 //updateRevs new revisions
 module.exports.updateRevisions = function (title, callback){
@@ -124,6 +78,7 @@ module.exports.updateRevisions = function (title, callback){
 				// if any update more than one day ago, then update the database
 				if (timeDiff > 86400000){
 					var insert = (revisions[item])
+					console.log(insert);
 					Revision.create(insert,function(err,docs){
 						if(err) {
 							console.log(err);
@@ -136,6 +91,8 @@ module.exports.updateRevisions = function (title, callback){
 		});	
 	});
 }
+
+
 
 //Get article title with most/least revisions
 module.exports.MostRevisions = function (num,callback){
@@ -237,10 +194,11 @@ module.exports.ShortestHistory = function(callback){
 	})	
 }
 
+
 //Get number of anon, bot, admin, regular users
 module.exports.getAnonNumber = function(callback){
 	var AnonNumber = [
-		{'$match':{anon:""}},
+        {'$match':{anon:""}},
 		{'$group':{'_id':{"$substr":["$timestamp",0,4]},'numOfEdits':{$sum:1}}},
 		{'$sort':{_id:1}}
 	]
@@ -416,6 +374,7 @@ module.exports.getTop5RevNumByYear = function(title, users, callback){
 	})
 }
 
+//********************************************************************
 //Author Analytics
 module.exports.getUniqueAuthors = function(callback){
 	var uniqueAuthors = [
@@ -451,6 +410,8 @@ module.exports.getRevsByAuthor = function (author,callback) {
     })
 }
 
+//*****************************************************************
+// for showing the revisions data duration in article controller (facing dataset changes)
 module.exports.getDuration = function (callback) {
     var duration = [
         {'$group':{'_id':{"$substr":["$timestamp",0,4]}}},
@@ -467,6 +428,7 @@ module.exports.getDuration = function (callback) {
     })
 }
 
+// for list all articles
 module.exports.getArticles = function (callback) {
 	var articles = [
         {'$group':{'_id':"$title", 'numOfEdits': {$sum:1}}},
@@ -481,4 +443,22 @@ module.exports.getArticles = function (callback) {
 			callback(0,result);
 		}
     })
+}
+
+
+module.exports.addUserType = function (array, usertype,callback){
+    Revision.update(
+        {user:{"$in":array}},
+        {$set:{"usertype":usertype}},
+        {'multi':true},
+        function(err){
+            if(err){
+                console.log('error in addUsertype revision.js')
+				callback(1)
+            }
+            else{
+                //console.log('add userType to '+array.length+' users')
+				callback(0)
+            }
+        });
 }

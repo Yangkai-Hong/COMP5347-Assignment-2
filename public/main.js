@@ -3,21 +3,11 @@ google.charts.load('current', {packages: ['corechart']});
 var overallData
 var articleData
 var chart3Data
-var articles
 var showTop5Checkbox = false;
 var top5
 var articleTitle
 
-// default overall analysis
-/*var mostRevisions = new Array();
-var leastRevisions = new Array();
-var largeGp = new Array();
-var smallGp = new Array();
-var longHis = new Array();
-var shortHis = new Array();*/
 function showOverall() {
-    $.ajaxSettings.async = true;
-
     $.getJSON('/mostRevisions',{num:3},function (result) {
         for (i = 0; i < 3; i++) {
             var li = document.createElement('li');
@@ -87,6 +77,7 @@ function drawColumnChart(title){
     }
     chart.draw(graphData, option);
 }
+
 function drawPieChart(title){
     var option = {'title':'Revision number distribution by user type',
                   'width':1000,
@@ -153,8 +144,10 @@ function drawColumnChartTop5(users, title){
     var chart = new google.visualization.ColumnChart($('#IndividualChart')[0]);
 	chart.draw(graphData,option);
 }
+
 function updateSelectedArticle() {
-    $.getJSON('/article/revisions', req, function (result) {
+    //add new revisions first
+    $.getJSON('/articles/article/revisions', req, function (result) {
         $('#alert').html("");
         var alert1 = document.createElement('div');
         alert1.setAttribute("class", "alert alert-success alert-dismissable");
@@ -171,7 +164,10 @@ function updateSelectedArticle() {
         alert1.appendChild(alert2);
         $('#alert').append(alert1);
     })
+    //then update usertypes(bot,admin)
+    $.get('/');
 }
+
 function getSelectedArticle(){
     $.getJSON('/articles/article',req,function(result){
         Title = result['Title'];
@@ -191,7 +187,6 @@ function getSelectedArticle(){
 
 
 $(document).ready(function() {
-    $.ajaxSettings.async = true;
     // side navigation
     $("#sideNav").affix({offset:{top:150}});
     $("#submit").hide();
@@ -200,15 +195,17 @@ $(document).ready(function() {
 	showOverall();
 
 	//change number of most/least revisions displaying
+    $('#revNumInput').click(function (e) {
+        event.preventDefault();
+        $('#revNumInput').popover('hide');
+    })
     $('#revNumBtn').click(function(event){
         var revNum = parseInt($('#revNumInput').val());
-        if (revNum < 1){
+        if (revNum < 1 || isNaN(revNum)==true){
             $('#revNumInput').popover('show');
-            //$('#revNumInput').css('background-color','red');
         }
         else {
             $('#revNumInput').popover('hide');
-            $.ajaxSettings.async = true;
             $.getJSON('/mostRevisions', {num: revNum}, function (result) {
                 $('#mostRevs').html('');
                 for (i = 0; i < revNum; i++) {
@@ -228,11 +225,6 @@ $(document).ready(function() {
         }
     })
 
-    //get overall data for charts
-    $.getJSON('/overallChartData',function (result) {
-        overallData = result;
-    })
-
     //draw overall charts
     $('#chartList').bind("change",function(event){
         var obj = $('#chartList');
@@ -242,13 +234,21 @@ $(document).ready(function() {
         if(chartType == -1){
             return
         }
-        else if (chartType == 1){
-            console.log('drawing pie chart')
-            drawPieChart()
-        }
-        else if(chartType == 0){
-            console.log('drawing column chart')
-            drawColumnChart()
+        else{
+            //get overall data for charts
+            $.ajaxSettings.async = false;
+            $.getJSON('/overallChartData',function (result) {
+                overallData = result;
+            })
+            $.ajaxSettings.async = true;
+            if (chartType == 1){
+                console.log('drawing pie chart')
+                drawPieChart()
+            }
+            else if(chartType == 0){
+                console.log('drawing column chart')
+                drawColumnChart()
+            }
         }
     })
 
@@ -277,7 +277,7 @@ $(document).ready(function() {
         showTop5Checkbox = false;
         var obj = $('#articleList');
         var articleTitle = obj.find("option:selected").val();
-        console.log(articleTitle);
+        //console.log(articleTitle);
         req = {title:articleTitle}
         //event.preventDefault();
         if (articleTitle == 'Select Article'){
@@ -364,7 +364,7 @@ $(document).ready(function() {
             req = {users:selectedUser,title:articleTitle}
 
             $.ajaxSettings.async = false;
-            $.getJSON('/articles/top5',req,function(result){
+            $.getJSON('/articles/article/top5',req,function(result){
                 chart3Data = result
             })
             $.ajaxSettings.async = true ;
@@ -372,6 +372,7 @@ $(document).ready(function() {
         }
     })
 
+    //get unique authors list
     var authorsArray
     $.getJSON('/authors',function (result) {
         authorsArray = new Array();

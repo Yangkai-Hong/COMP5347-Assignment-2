@@ -3,14 +3,14 @@ var user = require("../models/user.js")
 module.exports.showSignin=function(req,res){
     res.render('signin.pug')
 }
-module.exports.showDescription=function(req, res){
-    res.render('description.pug')
+module.exports.showDescription=function(req, res,next){
+    res.render('description.pug');
+    next();
 }
 module.exports.showMain=function(req,res){
     if (req.body.loginCredential=='true'){
-        res.render('main.pug')
+        res.render('main.pug',{email:req.body.email});
     }
-    //console.log(req.body);
 }
 
 module.exports.addUser=function(req,res,next) {

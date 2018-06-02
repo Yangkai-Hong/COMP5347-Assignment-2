@@ -1,12 +1,14 @@
 var revision = require("../models/revision.js")
+var fs = require('fs')
 
 var AnonNumber = new Array()
 var BotNumber = new Array()
 var AdminNumber = new Array()
 var UserNumber = new Array()
 
-module.exports.renderMainPage = function(req,res){
+module.exports.renderMainPage = function(req,res,next){
     res.render("main.pug");
+    next();
 }
 
 module.exports.mostRevisions = function(req,res,next) {
@@ -79,7 +81,7 @@ module.exports.shortestHistory = function(req,res,next){
 	//next();
 }
 
-//show revisions duration information
+//show revisions duration information (facing dataset changes)
 revision.getDuration(function (err,result) {
 	if (err!=0){
 		console.log('error')
@@ -100,11 +102,11 @@ module.exports.getAnon = function(req,res,next){
 		}
 		else{
 			AnonNumber.splice(0,AnonNumber.length);
-			for (var i = 2001; i < 2018 ; i++){
+			for (var i = 2001; i <= 2018 ; i++){
 				AnonNumber.push({_id:i.toString(),numOfEdits:0})
 			}
 			for (var i in result){
-				for (var j = 2001; j < 2018 ; j++){
+				for (var j = 2001; j <= 2018 ; j++){
 					if (result[i]['_id'] == j.toString())
 						AnonNumber[j-2001]['numOfEdits'] += result[i]['numOfEdits']
 				}
@@ -119,11 +121,11 @@ module.exports.getBot = function(req,res,next){
 		if (err != 0){console.log('error')}
 		else{
 			BotNumber.splice(0,BotNumber.length);
-			for (var i = 2001; i < 2018 ; i++){
+			for (var i = 2001; i <= 2018 ; i++){
 				BotNumber.push({_id:i.toString(),numOfEdits:0})
 			}
 			for (var i in result){
-				for (var j = 2001; j < 2018 ; j++){
+				for (var j = 2001; j <= 2018 ; j++){
 					if (result[i]['_id'] == j.toString())
 						BotNumber[j-2001]['numOfEdits'] += result[i]['numOfEdits']
 				}
@@ -138,11 +140,11 @@ module.exports.getAdmin = function(req,res,next){
 		if (err != 0){console.log('error')}
 		else{
 			AdminNumber.splice(0,AdminNumber.length);
-			for (var i = 2001; i < 2018 ; i++){
+			for (var i = 2001; i <= 2018 ; i++){
 				AdminNumber.push({_id:i.toString(),numOfEdits:0})
 			}
 			for (var i in result){
-				for (var j = 2001; j < 2018 ; j++){
+				for (var j = 2001; j <= 2018 ; j++){
 					if (result[i]['_id'] == j.toString())
 						AdminNumber[j-2001]['numOfEdits'] += result[i]['numOfEdits']
 				}
@@ -159,18 +161,18 @@ module.exports.getUser = function(req,res,next){
 		}
 		else{
 			UserNumber.splice(0,UserNumber.length);
-			for (var i = 2001; i < 2018 ; i++){
+			for (var i = 2001; i <= 2018 ; i++){
 				UserNumber.push({_id:i.toString(),numOfEdits:0})
 			}
 			for (var i in result){
-				for (var j = 2001; j < 2018 ; j++){
+				for (var j = 2001; j <= 2018 ; j++){
 					if (result[i]['_id'] == j.toString())
 						UserNumber[j-2001]['numOfEdits'] += result[i]['numOfEdits']
 				}
 			}
 			//convert data to google char format
 			var chart = new Array()
-			for (var year = 2001 ; year < 2018 ; year ++){
+			for (var year = 2001 ; year <= 2018 ; year ++){
 				chart.push({Year:year.toString(),
 							Administrator:AdminNumber[year-2001]['numOfEdits'],
 							Anonymous:AnonNumber[year-2001]['numOfEdits'],
@@ -181,6 +183,59 @@ module.exports.getUser = function(req,res,next){
 			res.json(chart)
 		}
 	})
+}
+
+
+// Add usertype attribute to revisions
+// 1. convert admin.txt/bot.txt content to array
+var adminArray = new Array()
+var botArray = new Array()
+var admins = fs.createReadStream('./public/admin.txt');
+var bots = fs.createReadStream('./public/bot.txt')
+function txtToArray(txt,array) {
+    var remainingData = '';
+    txt.on('data', function(data) {
+        remainingData += data;
+        if (remainingData.charAt(remainingData.length-1) != '\n'){
+            remainingData+='\n'
+        }
+        //console.log(remainingData);
+        var index = remainingData.indexOf('\n');
+        //console.log(index);
+        while (index > -1) {
+            var line = remainingData.substring(0, index);
+            // new remainingData = remainingData - line
+            remainingData = remainingData.substring(index + 1);
+            array.push(line);
+            index = remainingData.indexOf('\n');
+        }
+        //console.log(array.length)
+    });
+}
+txtToArray(bots,botArray);
+txtToArray(admins,adminArray);
+
+module.exports.addBot = function(req,res,next) {
+    revision.addUserType(botArray, 'bot',function (err) {
+		if (err!=0){
+			console.log('error in addUserType overall controller')
+		}
+		else {
+            console.log('add userType:bot to '+botArray.length +" bots")
+		}
+    });
+    next();
+}
+module.exports.addAdmin = function(req,res,next) {
+    revision.addUserType(adminArray, 'admin',function (err) {
+		if (err!=0){
+			console.log('error in addUserType overall controller')
+		}
+		else {
+			console.log('add userType:admin to '+adminArray.length +" admins")
+		}
+    });
+    next();
 }
 
 

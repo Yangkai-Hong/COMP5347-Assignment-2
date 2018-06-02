@@ -66,11 +66,11 @@ module.exports.getAnonNumByYear = function(req, res, next){
 		if (err != 0){console.log('error')}
 		else{
 			AnonNumber.splice(0,AnonNumber.length);
-			for (var i = 2001; i < 2018 ; i++){
+			for (var i = 2001; i <= 2018 ; i++){
 				AnonNumber.push({_id:i.toString(),numOfEdits:0})
 			}
 			for (var i in result){
-				for (var j = 2001; j < 2018 ; j++){
+				for (var j = 2001; j <= 2018 ; j++){
 					if (result[i]['_id'] == j.toString())
 						AnonNumber[j-2001]['numOfEdits'] += result[i]['numOfEdits']
 				}
@@ -86,11 +86,11 @@ module.exports.getBotNumByYear = function(req, res, next){
 		if (err != 0){console.log('error')}
 		else{
 			botNumber.splice(0,botNumber.length);
-			for (var i = 2001; i < 2018 ; i++){
+			for (var i = 2001; i <= 2018 ; i++){
 				botNumber.push({_id:i.toString(),numOfEdits:0})
 			}
 			for (var i in result){
-				for (var j = 2001; j < 2018 ; j++){
+				for (var j = 2001; j <= 2018 ; j++){
 					if (result[i]['_id'] == j.toString())
 						botNumber[j-2001]['numOfEdits'] += result[i]['numOfEdits']
 				}
@@ -106,11 +106,11 @@ module.exports.getAdminNumByYear = function(req, res, next){
 		if (err != 0){console.log('error')}
 		else{
 			adminNumber.splice(0,adminNumber.length);
-			for (var i = 2001; i < 2018 ; i++){
+			for (var i = 2001; i <= 2018 ; i++){
 				adminNumber.push({_id:i.toString(),numOfEdits:0})
 			}
 			for (var i in result){
-				for (var j = 2001; j < 2018 ; j++){
+				for (var j = 2001; j <= 2018 ; j++){
 					if (result[i]['_id'] == j.toString())
 						adminNumber[j-2001]['numOfEdits'] += result[i]['numOfEdits']
 				}
@@ -126,11 +126,11 @@ module.exports.getUserNumByYear = function(req, res, next){
 		if (err != 0){console.log('error')}
 		else{
 			userNumber.splice(0,userNumber.length);
-			for (var i = 2001; i < 2018 ; i++){
+			for (var i = 2001; i <= 2018 ; i++){
 				userNumber.push({_id:i.toString(),numOfEdits:0})
 			}
 			for (var i in result){
-				for (var j = 2001; j < 2018 ; j++){
+				for (var j = 2001; j <= 2018 ; j++){
 					if (result[i]['_id'] == j.toString())
 						userNumber[j-2001]['numOfEdits'] += result[i]['numOfEdits']
 				}
@@ -138,7 +138,7 @@ module.exports.getUserNumByYear = function(req, res, next){
 
 			//convert data to google char format
 			var chart = new Array()
-			for (var year = 2001 ; year < 2018 ; year ++){
+			for (var year = 2001 ; year <= 2018 ; year ++){
 				chart.push({year:year.toString(),
 					       admin:adminNumber[year-2001]['numOfEdits'],
 					       anon:AnonNumber[year-2001]['numOfEdits'],

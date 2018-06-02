@@ -6,10 +6,12 @@ var authorController = require('../controllers/author.server.controller')
 var router = express.Router()
 
 // /wiki is used for debugging easily, this line should be delete when deliver
-router.get('/wiki',overallController.renderMainPage)
+//router.get('/wiki',overallController.renderMainPage)
 
 //Description page
 router.get('/',landingController.showDescription)
+router.get('/',overallController.addBot)
+router.get('/',overallController.addAdmin)
 
 //post to log into Main page
 router.post('/',landingController.showMain)
@@ -40,7 +42,7 @@ router.get('/overallChartData',overallController.getUser)
 router.get('/articles',articleController.getAllArticles)
 
 //update article
-router.get('/article/revisions',articleController.updateRevs)
+router.get('/articles/article/revisions',articleController.updateRevs)
 
 //show article data
 router.get('/articles/article',articleController.getRevNumTotal)
@@ -52,7 +54,7 @@ router.get('/articles/article',articleController.getAdminNumByYear)
 router.get('/articles/article',articleController.getUserNumByYear)
 
 //get data for drawing article top5 charts
-router.get('/articles/top5',articleController.getTop5RevNumByYear)
+router.get('/articles/article/top5',articleController.getTop5RevNumByYear)
 
 //Author analytics
 router.get('/authors',authorController.getUniqueAuthors)
