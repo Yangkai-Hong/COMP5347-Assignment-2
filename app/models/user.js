@@ -1,6 +1,6 @@
 var mongoose = require('mongoose')
 
-var uri = "mongodb+srv://hyk:Srhongyangkai1994@yangkai-hong-mdsnm.mongodb.net/wikipedia?retryWrites=true";
+var uri = "mongodb+srv://hyk:Srhongyangkai1994@yangkai-hong-mdsnm.mongodb.net/wikipedia";
 mongoose.connect(uri,function () {
     console.log('mongodb connected')
 });
