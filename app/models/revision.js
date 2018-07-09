@@ -30,9 +30,12 @@ revSchema.index({usertype:-1});
 
 var Revision = mongoose.model('Revision', revSchema, 'revisions')
 
-var uri = "mongodb+srv://hyk:Srhongyangkai1994@yangkai-hong-mdsnm.mongodb.net/wikipedia";
+/*var uri = "mongodb+srv://hyk:Srhongyangkai1994@yangkai-hong-mdsnm.mongodb.net/wikipedia";
 mongoose.connect(uri,function () {
 	  console.log('mongodb connected')
+});*/
+mongoose.connect('mongodb://localhost/wikipedia',function () {
+    console.log('mongodb connected')
 });
 
 //updateRevs new revisions
