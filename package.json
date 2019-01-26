@@ -11,6 +11,7 @@
   "dependencies": {
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
+    "heroku": "^7.19.4",
     "mongoose": "^5.0.15",
     "path": "^0.12.7",
     "pug": "^2.0.0-rc.1",
