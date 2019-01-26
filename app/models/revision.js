@@ -34,9 +34,6 @@ var Revision = mongoose.model('Revision', revSchema, 'revisions')
 mongoose.connect(uri,function () {
 	  console.log('mongodb connected')
 });*/
-mongoose.connect('mongodb://localhost/wikipedia',function () {
-    console.log('mongodb connected')
-});
 
 //updateRevs new revisions
 module.exports.updateRevisions = function (title, callback){
