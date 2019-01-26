@@ -1,8 +1,8 @@
 var express = require('express');
 var path = require('path');
 var bodyParser = require('body-parser');
-var router = require('./app/routes/server.routes')
-var app = express()
+var router = require('./app/routes/server.routes');
+var app = express();
 var https = require('https');
 var fs = require('fs');
 

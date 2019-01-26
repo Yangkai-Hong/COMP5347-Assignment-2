@@ -1,5 +1,5 @@
-var revision = require("../models/revision.js")
-var fs = require('fs')
+var revision = require("../models/revision.js");
+var fs = require('fs');
 
 var AnonNumber = new Array()
 var BotNumber = new Array()
@@ -191,7 +191,7 @@ module.exports.getUser = function(req,res,next){
 var adminArray = new Array()
 var botArray = new Array()
 var admins = fs.createReadStream('./public/admin.txt');
-var bots = fs.createReadStream('./public/bot.txt')
+var bots = fs.createReadStream('./public/bot.txt');
 function txtToArray(txt,array) {
     var remainingData = '';
     txt.on('data', function(data) {
@@ -203,7 +203,7 @@ function txtToArray(txt,array) {
         var index = remainingData.indexOf('\n');
         //console.log(index);
         while (index > -1) {
-            var line = remainingData.substring(0, index);
+            var line = remainingData.substring(0, index-1); // Important!!! In MongoDB 3.0, "user" in "user\n" returns TRUE. However, in MongoDB 4.0, "user" in "user\n" returns FALSE!!!
             // new remainingData = remainingData - line
             remainingData = remainingData.substring(index + 1);
             array.push(line);
@@ -221,7 +221,7 @@ module.exports.addBot = function(req,res,next) {
 			console.log('error in addUserType overall controller')
 		}
 		else {
-            console.log('add userType:bot to '+botArray.length +" bots")
+            console.log(botArray);
 		}
     });
     next();
@@ -232,7 +232,7 @@ module.exports.addAdmin = function(req,res,next) {
 			console.log('error in addUserType overall controller')
 		}
 		else {
-			console.log('add userType:admin to '+adminArray.length +" admins")
+			console.log(adminArray);
 		}
     });
     next();
